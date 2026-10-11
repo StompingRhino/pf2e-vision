@@ -1,0 +1,224 @@
+{
+  "PF2EVISION": {
+    "level": {
+      "observed": "Observed",
+      "concealed": "Concealed",
+      "hidden": "Hidden",
+      "undetected": "Undetected",
+      "unnoticed": "Unnoticed"
+    },
+    "levelShort": {
+      "observed": "Obs.",
+      "concealed": "Conc.",
+      "hidden": "Hid.",
+      "undetected": "Undet.",
+      "unnoticed": "Unnot."
+    },
+    "action": {
+      "hide": "Hide",
+      "seek": "Seek",
+      "sneak": "Sneak"
+    },
+    "degree": {
+      "criticalSuccess": "Critical Success",
+      "success": "Success",
+      "failure": "Failure",
+      "criticalFailure": "Critical Failure"
+    },
+    "matrix": {
+      "title": "Visibility Matrix",
+      "open": "Visibility Matrix",
+      "empty": "There is no active combat with tokens on this scene.",
+      "undo": "Undo",
+      "observer": "Observer",
+      "target": "Target",
+      "fillWith": "Level to paint with",
+      "rowAll": "Whole row: this observer sees everyone at this level",
+      "colAll": "Whole column: everyone sees this target at this level",
+      "cellTip": "{observer} sees {target}: {level}",
+      "collapseAllies": "Collapse allies",
+      "collapseAlliesHint": "Hide PC-PC and NPC-NPC cells",
+      "collapsedCell": "Collapsed (allies)",
+      "hotkeysHint": "Keys 1-5 pick a brush while this window is focused"
+    },
+    "tooltip": {
+      "none": "{observer} → {target}: no consequences",
+      "flat": "{observer} → {target}: flat check DC {dc}",
+      "offGuard": "{observer} is off-guard against {target}'s attacks",
+      "separator": "; ",
+      "saves": "Against effects and saving throws the flat check is rolled manually"
+    },
+    "rolls": {
+      "flatLabel": "Flat check failed: target is {level}",
+      "flatFailChat": "{attacker} → {target}: flat check DC {dc}, rolled {total} — failed",
+      "flatPassChat": "{attacker} → {target}: flat check DC {dc}, rolled {total} — passed",
+      "flatCancelled": "The attack was cancelled: flat check failed",
+      "spellNoEffect": "{spell} does not affect {target}.",
+      "offGuardSource": "Off-Guard ({level})"
+    },
+    "suggest": {
+      "title": "{actor}: {action}",
+      "intro": "Suggested visibility changes",
+      "observer": "Observer",
+      "dc": "DC",
+      "degree": "Result",
+      "was": "Was",
+      "becomes": "Becomes",
+      "apply": "Apply",
+      "applied": "Applied: {count}",
+      "noChanges": "No changes",
+      "noTargets": "No targets found for Seek",
+      "autoSummary": "{action} by {actor}: {count} change(s) applied"
+    },
+    "notify": {
+      "applyFailed": "Could not apply visibility changes"
+    },
+    "settings": {
+      "menu": {
+        "name": "Automation",
+        "label": "Configure automation",
+        "hint": "Hide, Sneak, Seek, flat checks and off-guard."
+      },
+      "group": {
+        "auto": "Hide / Sneak / Seek",
+        "flat": "Flat check",
+        "offguard": "Off-guard",
+        "cleanup": "Cleanup"
+      },
+      "choice": {
+        "off": "Off",
+        "suggest": "Suggest to GM",
+        "auto": "Apply automatically",
+        "enemies": "Enemies only",
+        "all": "Everyone",
+        "miss": "Attack misses",
+        "warn": "Warn in chat only",
+        "cancel": "Cancel the attack",
+        "pc": "Player characters only",
+        "npc": "NPCs only",
+        "alliance": "By alliance",
+        "owner": "By player ownership",
+        "public": "Public",
+        "gm": "GM only (whisper)"
+      },
+      "auto": {
+        "hide": {
+          "name": "Hide",
+          "hint": "How the module reacts to a Hide roll."
+        },
+        "sneak": {
+          "name": "Sneak",
+          "hint": "How the module reacts to a Sneak roll."
+        },
+        "seek": {
+          "name": "Seek",
+          "hint": "How the module reacts to a Seek roll."
+        },
+        "observers": {
+          "name": "Observers for Hide / Sneak",
+          "hint": "Whom a Hide or Sneak roll is checked against."
+        }
+      },
+      "flat": {
+        "enabled": {
+          "name": "Flat check on attack",
+          "hint": "Roll a flat check when the attacker cannot see the target clearly."
+        },
+        "dc": {
+          "concealed": {
+            "name": "Flat check DC: concealed",
+            "hint": "Default 5."
+          },
+          "hidden": {
+            "name": "Flat check DC: hidden",
+            "hint": "Default 11."
+          },
+          "undetected": {
+            "name": "Flat check DC: undetected and unnoticed",
+            "hint": "Default 11."
+          }
+        },
+        "onFail": {
+          "name": "On failed flat check",
+          "hint": "What happens to the attack when the flat check fails."
+        },
+        "who": {
+          "name": "Whose attacks are checked",
+          "hint": "Limit flat checks to player characters or NPCs."
+        },
+        "message": {
+          "name": "Flat check message",
+          "hint": "Who sees the flat check result in chat. With a private attack roll the message is whispered to the GM regardless."
+        },
+        "spells": {
+          "name": "Flat check for targeted spells",
+          "hint": "When a spell without an attack roll is cast at targets (not an area), roll a flat check for each target with the same DCs. A failure is reported in chat: the spell does not affect that target; saves and damage are not blocked."
+        }
+      },
+      "offguard": {
+        "attack": {
+          "name": "Off-guard on attack",
+          "hint": "A target that the attacker is hidden from is off-guard when the hit is calculated."
+        },
+        "damage": {
+          "name": "Off-guard on damage",
+          "hint": "Pass off-guard to damage rolls (Sneak Attack, precision damage)."
+        }
+      },
+      "cleanup": {
+        "onCombatEnd": {
+          "name": "Clear visibility when combat ends",
+          "hint": "Remove all visibility data from tokens when the combat is deleted and when a combatant is removed from it. Tokens still in an active combat are not cleared."
+        }
+      },
+      "visual": {
+        "concealedOpacity": {
+          "name": "Concealed token opacity",
+          "hint": "What players see for concealed tokens (0 to 1)."
+        },
+        "hiddenOpacity": {
+          "name": "Hidden token opacity",
+          "hint": "What players see for hidden tokens (0 to 1)."
+        },
+        "hideUndetected": {
+          "name": "Hide undetected tokens",
+          "hint": "Hide undetected and unnoticed tokens from players."
+        },
+        "hideInTracker": {
+          "name": "Hide undetected in the combat tracker",
+          "hint": "Players do not see combatants that are undetected or unnoticed to all of their tokens in the combat tracker."
+        },
+        "badge": {
+          "name": "State badge",
+          "hint": "Show a visibility badge on tokens for players."
+        },
+        "gmIndicators": {
+          "name": "GM badges",
+          "hint": "Show badges to the GM relative to the selected tokens."
+        }
+      },
+      "matrix": {
+        "collapseAllies": {
+          "name": "Collapse allies by default",
+          "hint": "Collapse PC-PC and NPC-NPC cells when the matrix opens."
+        },
+        "allyCriterion": {
+          "name": "Who counts as allies",
+          "hint": "Criterion for collapsing allies in the matrix."
+        },
+        "hotkeys": {
+          "name": "Matrix hotkeys 1-5",
+          "hint": "Pick a brush with number keys while the matrix is focused."
+        },
+        "tooltip": {
+          "name": "Consequence tooltips",
+          "hint": "Show flat check and off-guard consequences when hovering a matrix cell."
+        },
+        "highlight": {
+          "name": "Canvas highlight",
+          "hint": "Highlight tokens on the canvas when hovering names and cells."
+        }
+      }
+    }
+  }
+}

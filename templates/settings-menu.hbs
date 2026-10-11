@@ -1,0 +1,27 @@
+<div class="pf2e-vision-settings-body">
+{{#each groups}}
+<fieldset>
+	<legend>{{title}}</legend>
+	{{#each fields}}
+	<div class="form-group">
+		<label for="pf2e-vision-{{name}}">{{label}}</label>
+		<div class="form-fields">
+			{{#if isCheckbox}}
+			<input type="checkbox" id="pf2e-vision-{{name}}" name="{{name}}" {{checked value}}>
+			{{else if isNumber}}
+			<input type="number" id="pf2e-vision-{{name}}" name="{{name}}" value="{{value}}" step="1">
+			{{else if isSelect}}
+			<select id="pf2e-vision-{{name}}" name="{{name}}">
+				{{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+			</select>
+			{{/if}}
+		</div>
+		<p class="hint">{{hint}}</p>
+	</div>
+	{{/each}}
+</fieldset>
+{{/each}}
+<footer class="form-footer">
+	<button type="submit"><i class="fa-solid fa-save"></i> {{localize "SETTINGS.Save"}}</button>
+</footer>
+</div>

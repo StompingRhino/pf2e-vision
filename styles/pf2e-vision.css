@@ -1,0 +1,73 @@
+/* Owner: piece C (matrix window). Pieces D/F may append their own marked sections. */
+.pf2ev-app .window-content { background: #17151b; }
+.pf2ev-app .pf2ev-matrix {
+	--pf2ev-line: #3a3540;
+	--pf2ev-text: #ebe3d2;
+	--pf2ev-muted: #a39b8b;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	min-width: 0;
+	color: var(--pf2ev-text);
+	font-family: var(--sans-serif), Signika, sans-serif;
+	font-size: 13px;
+	user-select: none;
+}
+.pf2ev-app .pf2ev-matrix button { font: inherit; cursor: pointer; }
+.pf2ev-app .pf2ev-matrix img { width: 18px; height: 18px; border: 0; flex: none; object-fit: contain; }
+
+.pf2ev-app .pf2ev-toolbar { display: flex; gap: 6px; }
+/* Core gives every button a fixed height; our multi-line buttons size to content. */
+.pf2ev-app :is(.pf2ev-brush, .pf2ev-undo, .pf2ev-name) { height: auto; min-height: var(--button-size, 28px); }
+.pf2ev-app .pf2ev-brush {
+	flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
+	padding: 6px 4px; border-radius: 6px; background: var(--c); color: var(--fg); border: 2px solid transparent;
+}
+.pf2ev-app .pf2ev-brush[aria-pressed="true"] { border-color: #f1d27a; box-shadow: 0 0 6px #f1d27a88; }
+.pf2ev-app .pf2ev-brush-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pf2ev-app .pf2ev-brush-key { font-size: 11px; opacity: 0.75; }
+.pf2ev-app .pf2ev-undo {
+	width: 64px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+	border-radius: 6px; border: 1px solid var(--pf2ev-line); background: #201d24; color: var(--pf2ev-text); font-size: 12px;
+}
+.pf2ev-app .pf2ev-undo:disabled { opacity: 0.4; cursor: default; }
+
+.pf2ev-app .pf2ev-subbar { display: flex; align-items: center; gap: 12px; }
+.pf2ev-app .pf2ev-allies {
+	padding: 3px 10px; border-radius: 4px; border: 1px solid var(--pf2ev-line); background: #201d24; color: var(--pf2ev-text);
+}
+.pf2ev-app .pf2ev-allies[aria-pressed="true"] { background: #4a3a1a; border-color: #c9a85a; }
+.pf2ev-app .pf2ev-hint { color: var(--pf2ev-muted); font-size: 12px; }
+.pf2ev-app .pf2ev-empty { color: var(--pf2ev-muted); text-align: center; padding: 24px 0; }
+
+.pf2ev-app .pf2ev-grid {
+	display: grid; gap: 3px;
+	grid-template-columns: 150px repeat(var(--n), minmax(0, 1fr));
+}
+.pf2ev-app .pf2ev-corner {
+	color: var(--pf2ev-muted); font-size: 12px; display: flex; align-items: flex-end; padding: 0 0 4px 4px;
+	font-family: var(--serif), "Palatino Linotype", Georgia, serif;
+}
+.pf2ev-app .pf2ev-name {
+	min-width: 0; display: flex; align-items: center; gap: 6px; padding: 4px 2px; margin: 0;
+	border-radius: 4px; border: 1px dashed var(--pf2ev-line); background: transparent; color: var(--pf2ev-text);
+}
+.pf2ev-app .pf2ev-name:hover { border-color: #c9a85a; }
+.pf2ev-app .pf2ev-col { flex-direction: column; gap: 3px; }
+.pf2ev-app .pf2ev-row { text-align: left; }
+.pf2ev-app .pf2ev-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pf2ev-app .pf2ev-avatar {
+	width: 24px; height: 24px; border-radius: 12px; flex: none; display: flex; align-items: center; justify-content: center;
+	font-weight: 600; background: #7a1f1f; color: #f3e6cf;
+}
+.pf2ev-app .pf2ev-avatar[data-side="pc"] { background: #c9a85a; color: #1b1406; }
+
+.pf2ev-app .pf2ev-cell {
+	height: 40px; min-width: 0; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; gap: 4px;
+	border-radius: 4px; border: 0; font-size: 12px; background: var(--c); color: var(--fg); cursor: crosshair;
+}
+.pf2ev-app .pf2ev-cell .pf2ev-short { white-space: nowrap; overflow: hidden; }
+.pf2ev-app .pf2ev-cell img { width: 16px; height: 16px; }
+.pf2ev-app .pf2ev-self { background: #121015; color: #4d4755; cursor: default; }
+.pf2ev-app .pf2ev-collapsed { background: repeating-linear-gradient(45deg, #1d1a21, #1d1a21 4px, #17151b 4px, #17151b 8px); color: #4d4755; cursor: default; }
+.pf2ev-app button:focus-visible { outline: 2px solid #c9a85a; outline-offset: 1px; }

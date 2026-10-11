@@ -1,0 +1,19 @@
+<div class="pf2e-vision-suggest">
+	<header><strong>{{title}}</strong> <em>{{intro}}</em></header>
+	{{#if note}}<p>{{note}}</p>{{/if}}
+	{{#if rows.length}}
+	<table>
+		<thead><tr><th></th><th>{{L.observer}}</th><th>{{L.dc}}</th><th>{{L.degree}}</th><th>{{L.was}}</th><th>{{L.becomes}}</th></tr></thead>
+		<tbody>
+		{{#each rows}}
+			<tr>
+				<td><input type="checkbox" data-i="{{@index}}" {{#if ../applied}}disabled{{/if}} checked></td>
+				<td>{{name}}</td><td>{{dc}}</td><td>{{degree}}</td><td>{{was}}</td><td>{{becomes}}</td>
+			</tr>
+		{{/each}}
+		</tbody>
+	</table>
+	{{#if applied}}<p><em>{{appliedText}}</em></p>
+	{{else}}<button type="button" data-action="apply">{{L.apply}}</button>{{/if}}
+	{{else}}<p>{{L.noChanges}}</p>{{/if}}
+</div>

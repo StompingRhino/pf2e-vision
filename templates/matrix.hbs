@@ -1,0 +1,51 @@
+<div class="pf2ev-matrix">
+	<div class="pf2ev-toolbar">
+		{{#each brushes}}
+		<button type="button" class="pf2ev-brush" data-action="brush" data-level="{{level}}" aria-pressed="{{on}}" style="--c: {{color}}; --fg: {{fg}}" data-tooltip="{{../fillWith}}: {{name}}">
+			<img src="{{icon}}" alt="">
+			<span class="pf2ev-brush-name">{{name}}</span>
+			<span class="pf2ev-brush-key">{{key}}</span>
+		</button>
+		{{/each}}
+		<button type="button" class="pf2ev-undo" data-action="undo" aria-label="{{localize 'PF2EVISION.matrix.undo'}}" {{#unless canUndo}}disabled{{/unless}}>
+			<i class="fa-solid fa-rotate-left"></i>
+			<span>{{localize "PF2EVISION.matrix.undo"}}</span>
+		</button>
+	</div>
+	<div class="pf2ev-subbar">
+		<button type="button" class="pf2ev-allies" data-action="toggleAllies" aria-pressed="{{collapse}}" data-tooltip="{{localize 'PF2EVISION.matrix.collapseAlliesHint'}}">
+			<i class="fa-solid fa-users-slash"></i> {{localize "PF2EVISION.matrix.collapseAllies"}}
+		</button>
+		{{#if hotkeys}}<span class="pf2ev-hint">{{localize "PF2EVISION.matrix.hotkeysHint"}}</span>{{/if}}
+	</div>
+	{{#if empty}}
+	<p class="pf2ev-empty">{{localize "PF2EVISION.matrix.empty"}}</p>
+	{{else}}
+	<div class="pf2ev-grid" style="--n: {{count}}">
+		<div class="pf2ev-corner">{{localize "PF2EVISION.matrix.observer"}} ↓ · {{localize "PF2EVISION.matrix.target"}} →</div>
+		{{#each tokens}}
+		<button type="button" class="pf2ev-name pf2ev-col" data-action="fillCol" data-id="{{id}}" data-hl-t="{{id}}" data-tooltip="{{../colAll}}: {{name}}">
+			<span class="pf2ev-avatar" data-side="{{side}}">{{initial}}</span>
+			<span class="pf2ev-label">{{name}}</span>
+		</button>
+		{{/each}}
+		{{#each rows}}
+		<button type="button" class="pf2ev-name pf2ev-row" data-action="fillRow" data-id="{{id}}" data-hl-o="{{id}}" data-tooltip="{{../rowAll}}: {{name}}">
+			<span class="pf2ev-avatar" data-side="{{side}}">{{initial}}</span>
+			<span class="pf2ev-label">{{name}}</span>
+		</button>
+		{{#each cells}}
+		{{#if self}}
+		<div class="pf2ev-cell pf2ev-self">—</div>
+		{{else if collapsed}}
+		<div class="pf2ev-cell pf2ev-collapsed" data-tooltip="{{../../collapsedTip}}">·</div>
+		{{else}}
+		<button type="button" class="pf2ev-cell" data-cell data-o="{{o}}" data-t="{{t}}" data-hl-o="{{o}}" data-hl-t="{{t}}" data-level="{{level}}" style="--c: {{color}}; --fg: {{fg}}" aria-label="{{tip}}" {{#if tooltip}}data-tooltip="{{tooltip}}"{{/if}}>
+			<img src="{{icon}}" alt=""><span class="pf2ev-short">{{short}}</span>
+		</button>
+		{{/if}}
+		{{/each}}
+		{{/each}}
+	</div>
+	{{/if}}
+</div>
