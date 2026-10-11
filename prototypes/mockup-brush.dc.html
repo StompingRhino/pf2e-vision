@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>C · Кисть</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Eczar:wght@600&amp;family=Signika:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button{font:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid #c9a85a;outline-offset:1px}
+</style>
+</helmet>
+<div onMouseUp="{{endStroke}}" onMouseLeave="{{endStroke}}" style="width: 820px; height: 640px; box-sizing: border-box; background: #17151b; color: #ebe3d2; font-family: Signika, sans-serif; font-size: 13px; display: flex; flex-direction: column; border: 1px solid #000; border-radius: 6px; overflow: hidden; user-select: none">
+  <div style="display: flex; align-items: center; gap: 10px; height: 38px; padding: 0 6px 0 14px; background: #2a1416; border-bottom: 2px solid #8b1e1e; flex-shrink: 0">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#c9a85a" stroke-width="2" aria-hidden="true"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"></path></svg>
+    <div style="font-family: Eczar, serif; font-size: 16px; font-weight: 600; flex-grow: 1">Матрица видимости</div>
+    <button type="button" aria-label="Закрыть" style="width: 30px; height: 30px; border: 0; background: transparent; color: #ebe3d2; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+  </div>
+  <div style="display: flex; align-items: stretch; gap: 6px; padding: 12px 14px; border-bottom: 1px solid #3a3540">
+    <sc-for list="{{brushes}}" as="b" hint-placeholder-count="5">
+      <button type="button" onClick="{{b.pick}}" aria-pressed="{{b.on}}" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border-radius: 6px; background: {{b.bg}}; color: {{b.fg}}; border: 2px solid {{b.ring}}">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{b.p1}}"></path><path d="{{b.p2}}"></path></svg>
+        <span style="font-size: 12px; white-space: nowrap">{{b.n}}</span>
+        <span style="font-size: 11px; opacity: 0.8">клавиша {{b.key}}</span>
+      </button>
+    </sc-for>
+    <button type="button" onClick="{{undo}}" aria-label="Отменить последнее действие" style="width: 64px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border-radius: 6px; border: 1px solid #3a3540; background: #201d24; color: #ebe3d2; font-size: 12px">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"></path><path d="M4 9h11a5 5 0 0 1 0 10h-3"></path></svg>Отмена
+    </button>
+  </div>
+  <div style="padding: 10px 14px; display: flex; flex-direction: column; gap: 3px; flex-grow: 1">
+    <div style="display: flex; gap: 3px">
+      <div style="width: 150px; flex-shrink: 0; color: #a39b8b; font-size: 12px; display: flex; align-items: flex-end; padding: 0 0 4px 4px">наблюдатель ↓ · цель →</div>
+      <sc-for list="{{cols}}" as="c" hint-placeholder-count="6">
+        <button type="button" onClick="{{c.fill}}" title="{{c.fillLabel}}" aria-label="{{c.fillLabel}}" style="flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 2px; border-radius: 4px; border: 1px dashed #3a3540; background: transparent; color: #ebe3d2">
+          <span style="width: 24px; height: 24px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; background: {{c.avBg}}; color: {{c.avFg}}">{{c.i}}</span>
+          <span style="font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%">{{c.n}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+      <div style="display: flex; gap: 3px">
+        <button type="button" onClick="{{r.fill}}" title="{{r.fillLabel}}" aria-label="{{r.fillLabel}}" style="width: 150px; flex-shrink: 0; display: flex; align-items: center; gap: 6px; padding: 0 4px; border-radius: 4px; border: 1px dashed #3a3540; background: transparent; color: #ebe3d2; text-align: left">
+          <span style="width: 24px; height: 24px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 600; background: {{r.avBg}}; color: {{r.avFg}}">{{r.i}}</span>
+          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.n}}</span>
+        </button>
+        <sc-for list="{{r.cells}}" as="cell" hint-placeholder-count="6">
+          <div style="flex: 1 1 0; min-width: 0; height: 40px; display: flex">
+            <sc-if value="{{cell.self}}" hint-placeholder-val="{{false}}">
+              <div style="flex-grow: 1; border-radius: 4px; background: #121015; display: flex; align-items: center; justify-content: center; color: #4d4755">—</div>
+            </sc-if>
+            <sc-if value="{{cell.other}}" hint-placeholder-val="{{true}}">
+              <button type="button" onMouseDown="{{cell.down}}" onMouseEnter="{{cell.enter}}" onClick="{{cell.key}}" aria-label="{{cell.label}}" style="flex-grow: 1; border-radius: 4px; border: 0; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 12px; background: {{cell.bg}}; color: {{cell.fg}}; cursor: crosshair">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{cell.p1}}"></path><path d="{{cell.p2}}"></path></svg>{{cell.s}}
+              </button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding: 8px 14px; border-top: 1px solid #3a3540; color: #a39b8b; font-size: 12px">Клик или протяжка по ячейкам — красит кистью · клик по имени — вся строка или весь столбец</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":820,"height":640}}'>
+var EYE='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z';
+var PUP='M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z';
+var LV=[
+ {n:'Видимость',s:'Вид.',bg:'#2b2830',fg:'#c9c1b0',p1:EYE,p2:PUP},
+ {n:'Плохая видимость',s:'Плох.',bg:'#8fb8d4',fg:'#0f2230',p1:EYE,p2:PUP+'M3 22h4M10 22h4M17 22h4'},
+ {n:'Спрятанность',s:'Спр.',bg:'#e3a23b',fg:'#2a1700',p1:EYE,p2:'M4 4l16 16'},
+ {n:'Необнаруженность',s:'Необн.',bg:'#b8483a',fg:'#ffffff',p1:'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z',p2:'M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5M12 17h.01'},
+ {n:'Незамеченность',s:'Незам.',bg:'#5a3d8c',fg:'#ffffff',p1:'M2 11s3.6 5 10 5 10-5 10-5',p2:'M5 14l-2 3M12 16v3M19 14l2 3'}
+];
+var CB=[
+ {id:'v',n:'Валерос',i:'В',pc:true},
+ {id:'e',n:'Эзрен',i:'Э',pc:true},
+ {id:'m',n:'Мерисиэль',i:'М',pc:true},
+ {id:'g1',n:'Гоблин-воин',i:'Г',pc:false},
+ {id:'g2',n:'Гоблин-шаман',i:'Ш',pc:false},
+ {id:'o',n:'Огр-громила',i:'О',pc:false}
+];
+var INIT={'g1>m':2,'g2>m':2,'o>m':3,'v>g2':1,'e>g2':1,'m>g2':1,'e>o':3,'v>o':2,'g2>e':4};
+function avatar(c){return {n:c.n,i:c.i,avBg:c.pc?'#c9a85a':'#7a1f1f',avFg:c.pc?'#1b1406':'#f3e6cf'};}
+class Component extends DCLogic {
+  renderVals() {
+    var self=this, st=this.state||{}, m=st.m||INIT, brush=st.brush==null?2:st.brush, L=LV[brush];
+    function commit(p,snap){var s={m:Object.assign({},m,p)};if(snap)s.prev=m;self.setState(s);}
+    function paint(o,t,snap){var p={};p[o+'>'+t]=brush;commit(p,snap);}
+    var cols=CB.map(function(t){
+      var a=avatar(t);
+      a.fillLabel='Покрасить столбец «'+t.n+'»: '+L.n;
+      a.fill=function(){var p={};CB.forEach(function(o){if(o.id!==t.id)p[o.id+'>'+t.id]=brush;});commit(p,true);};
+      return a;
+    });
+    var rows=CB.map(function(o){
+      var a=avatar(o);
+      a.fillLabel='Покрасить строку «'+o.n+'»: '+L.n;
+      a.fill=function(){var p={};CB.forEach(function(t){if(o.id!==t.id)p[o.id+'>'+t.id]=brush;});commit(p,true);};
+      a.cells=CB.map(function(t){
+        var same=o.id===t.id, l=LV[m[o.id+'>'+t.id]||0];
+        return {self:same,other:!same,bg:l.bg,fg:l.fg,s:l.s,p1:l.p1,p2:l.p2,label:t.n+' для '+o.n+': '+l.n,
+          down:function(){self.painting=true;paint(o.id,t.id,true);},
+          enter:function(){if(self.painting)paint(o.id,t.id,false);},
+          key:function(e){if(e.detail===0)paint(o.id,t.id,true);}};
+      });
+      return a;
+    });
+    var brushes=LV.map(function(l,i){
+      var on=i===brush;
+      return {n:l.n,p1:l.p1,p2:l.p2,key:i+1,on:on,bg:l.bg,fg:l.fg,ring:on?'#f1d27a':'transparent',pick:function(){self.setState({brush:i});}};
+    });
+    return {cols:cols,rows:rows,brushes:brushes,
+      endStroke:function(){self.painting=false;},
+      undo:function(){if(st.prev)self.setState({m:st.prev,prev:null});}};
+  }
+}
+</script>
+</body>
+</html>

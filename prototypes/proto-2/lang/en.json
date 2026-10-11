@@ -1,0 +1,13 @@
+{
+  "PFV.Title": "How they see",
+  "PFV.Toggle": "Visibility to others",
+  "PFV.AllPC": "All PCs",
+  "PFV.AllNPC": "All NPCs",
+  "PFV.Mixed": "Mixed",
+  "PFV.Empty": "No other combatants with tokens on this scene.",
+  "PFV.State.observed": "Observed",
+  "PFV.State.concealed": "Concealed",
+  "PFV.State.hidden": "Hidden",
+  "PFV.State.undetected": "Undetected",
+  "PFV.State.unnoticed": "Unnoticed"
+}

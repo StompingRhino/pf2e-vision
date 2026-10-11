@@ -1,0 +1,21 @@
+{
+  "id": "pf2e-vision-proto-3",
+  "title": "PF2e Vision — Proto 3: Canvas",
+  "description": "Prototype: floating canvas panel for setting per-observer visibility of combatants.",
+  "version": "0.0.1",
+  "compatibility": { "minimum": "14", "verified": "14.364" },
+  "authors": [{ "name": "prototype" }],
+  "relationships": {
+    "systems": [{ "id": "pf2e", "type": "system", "compatibility": { "minimum": "8.1.0" } }],
+    "requires": [
+      { "id": "xdy-pf2e-workbench", "type": "module" },
+      { "id": "pf2e-toolbelt", "type": "module" }
+    ]
+  },
+  "esmodules": ["scripts/main.mjs"],
+  "styles": ["styles/vision.css"],
+  "languages": [
+    { "lang": "en", "name": "English", "path": "lang/en.json" },
+    { "lang": "ru", "name": "Русский", "path": "lang/ru.json" }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "PF2EVISION.Toggle": "Как видят цель (Прототип 3)",
+  "PF2EVISION.Title": "Как видят: {name}",
+  "PF2EVISION.Hint": "Выберите токен участника боя.",
+  "PF2EVISION.NoObservers": "На сцене нет других участников боя.",
+  "PF2EVISION.NoCombat": "Нет активного боя.",
+  "PF2EVISION.State.observed": "Видимость",
+  "PF2EVISION.State.concealed": "Плохая видимость",
+  "PF2EVISION.State.hidden": "Спрятанность",
+  "PF2EVISION.State.undetected": "Необнаруженность",
+  "PF2EVISION.State.unnoticed": "Незамеченность",
+  "PF2EVISION.Flat.concealed": "Чистая проверка СЛ 5",
+  "PF2EVISION.Flat.hidden": "Чистая проверка СЛ 11, застигнут врасплох",
+  "PF2EVISION.Flat.undetected": "Чистая проверка СЛ 11, застигнут врасплох",
+  "PF2EVISION.Flat.unnoticed": "Застигнут врасплох"
+}
