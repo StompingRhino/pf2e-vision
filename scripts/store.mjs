@@ -1,7 +1,7 @@
 // Visibility storage (PLAN 1.7): flags.pf2e-vision.visibility = {[observerTokenId]: level} on the TARGET token.
 // observed = key absent. Levels are read straight from the token documents (no cache: it is a plain property read).
 import { MODULE_ID, FLAG_KEY } from "./constants.mjs";
-import { buildDiff, DEL } from "./logic.mjs";
+import { buildDiff, DEL, pickCombat } from "./logic.mjs";
 import { getSetting } from "./settings.mjs";
 
 const listeners = new Set();
@@ -38,19 +38,21 @@ export function ready() {
 	});
 }
 
+const pick = (sceneId = canvas?.scene?.id ?? game.scenes?.current?.id) => pickCombat(game.combats, sceneId);
+
 /**
- * The active combat if `tokenDoc` is a participant of it (same tokenId and sceneId), else null.
+ * The combat (see pickCombat) if `tokenDoc` is a participant of it (same tokenId and sceneId), else null.
  * Not `tokenDoc.combatant`: that follows game.combat (the viewed combat), not the active one.
  */
 export function combatOf(tokenDoc) {
-	const combat = game.combats?.active;
 	const sceneId = tokenDoc?.parent?.id;
+	const combat = sceneId && pick(sceneId);
 	return combat && sceneId && combat.combatants.some((c) => c.tokenId === tokenDoc.id && c.sceneId === sceneId) ? combat : null;
 }
 
-/** Scene of the active combat's participants (first one), else the viewed scene. */
+/** Scene of the picked combat's participants (first one), else the viewed scene. */
 export function combatScene() {
-	for (const c of game.combats?.active?.combatants ?? []) {
+	for (const c of pick()?.combatants ?? []) {
 		const scene = c.sceneId && game.scenes.get(c.sceneId);
 		if (scene) return scene;
 	}
@@ -65,7 +67,7 @@ export function getLevel(targetTokenId, observerTokenId, scene = combatScene()) 
 
 /** TokenDocuments of the active combat's participants on `scene` (default: combatScene()). */
 export function getCombatTokens(scene = combatScene()) {
-	return (game.combats?.active?.combatants ?? [])
+	return (pick(scene?.id)?.combatants ?? [])
 		.filter((c) => c.sceneId === scene?.id)
 		.map((c) => c.tokenId && scene.tokens.get(c.tokenId))
 		.filter(Boolean);
@@ -98,7 +100,7 @@ async function cleanup(sceneId, tokenIds, dropObserver = false) {
 	const scene = game.scenes.get(sceneId);
 	if (!scene) return;
 	// A token that is still fighting in the active combat keeps its levels.
-	const active = game.combats.active?.combatants;
+	const active = pick(sceneId)?.combatants;
 	const gone = new Set(tokenIds.filter((id) => !active?.some((c) => c.tokenId === id && c.sceneId === sceneId)));
 	if (!gone.size) return;
 	const updates = [];

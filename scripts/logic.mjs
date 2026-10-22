@@ -158,3 +158,15 @@ export function buildDiff(getLevel, changes, flagPath = ["pf2e-vision", "visibil
 	const updates = [...byTarget].map(([_id, vis]) => ({ _id, flags: { [scope]: { [key]: vis } } }));
 	return { updates, reverse };
 }
+
+/**
+ * Which combat the module treats as "the" combat on `sceneId`: the active one, else a started one with
+ * participants on that scene (the viewed one preferred). Candidates come only from `contents`, so a
+ * just-deleted combat that `viewed` still points at is ignored; an unstarted viewed draft is never picked.
+ * `combats` = game.combats-like {active, viewed, contents}.
+ */
+export function pickCombat(combats, sceneId) {
+	if (combats?.active) return combats.active;
+	const ok = (combats?.contents ?? []).filter((c) => c.started && (!sceneId || c.combatants.some((p) => p.sceneId === sceneId)));
+	return ok.find((c) => c === combats.viewed) ?? ok[0] ?? null;
+}

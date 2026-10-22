@@ -211,3 +211,16 @@ test("opacityFactor: hideUndetected=false makes undetected look like hidden", ()
 	const c = cfg({ "visual.hideUndetected": false });
 	assert.deepEqual(LEVELS.map((l) => opacityFactor(l, c)), [undefined, 0.8, 0.45, 0.45, 0.45]);
 });
+
+test("pickCombat: active > started on scene (viewed preferred); no drafts, no deleted viewed", async () => {
+	const { pickCombat } = await import("../scripts/logic.mjs");
+	const mk = (scenes, started = true) => ({ started, combatants: scenes.map((sceneId) => ({ sceneId })) });
+	const a = mk(["s2"]), v = mk(["s1"]), st = mk(["s1"]), draft = mk(["s1"], false);
+	assert.equal(pickCombat({ active: a, viewed: v, contents: [a, v, st] }, "s1"), a);
+	assert.equal(pickCombat({ active: null, viewed: v, contents: [st, v] }, "s1"), v);
+	assert.equal(pickCombat({ active: null, viewed: mk(["s2"]), contents: [st] }, "s1"), st);
+	assert.equal(pickCombat({ active: null, viewed: draft, contents: [draft] }, "s1"), null);
+	assert.equal(pickCombat({ active: null, viewed: v, contents: [] }, "s1"), null); // viewed already deleted
+	assert.equal(pickCombat({ active: null, viewed: null, contents: [st] }, "s2"), null);
+	assert.equal(pickCombat(undefined, "s1"), null);
+});
