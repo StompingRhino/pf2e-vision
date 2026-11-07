@@ -20,7 +20,11 @@ function evaluate(attacker, target) {
 	if (!attacker || !target || !sameCombat(attacker, target)) return null;
 	const levelTA = getLevel(target.id, attacker.id, target.parent);
 	const levelAT = getLevel(attacker.id, target.id, attacker.parent);
-	const result = attackConsequences(levelTA, levelAT, getConfig(), { attackerIsPC: !!attacker.actor?.hasPlayerOwner });
+	const result = attackConsequences(levelTA, levelAT, getConfig(), {
+		attackerIsPC: !!attacker.actor?.hasPlayerOwner,
+		attackerOptions: attacker.actor?.getRollOptions?.() ?? [],
+		targetOptions: target.actor?.getRollOptions?.() ?? []
+	});
 	return { ...result, levelTA, levelAT };
 }
 

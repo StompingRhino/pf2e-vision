@@ -2,9 +2,25 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
 	DEL, consequences, attackConsequences, flatDC, actionMode, sameSide, selectObservers,
-	degreeOfSuccess, transition, buildDiff, mostVisible, recognizeAction, flatMessageMode, opacityFactor
+	degreeOfSuccess, transition, buildDiff, mostVisible, recognizeAction, flatMessageMode, opacityFactor, adjustFlatDC
 } from "../scripts/logic.mjs";
 import { DEFAULTS, LEVELS, SETTINGS } from "../scripts/constants.mjs";
+
+test("Keen Eyes / Blind-Fight: flat DC of the attacker, off-guard of the target", () => {
+	const keen = ["feature:keen-eyes"], blind = ["feat:blind-fight"];
+	const at = (lvl, o = {}) => attackConsequences(lvl, "observed", cfg(), { attackerIsPC: true, ...o });
+	assert.deepEqual(["concealed", "hidden", "undetected"].map((l) => at(l, { attackerOptions: keen }).flatDC), [3, 9, 11]);
+	assert.deepEqual(["concealed", "hidden", "undetected"].map((l) => at(l, { attackerOptions: blind }).flatDC), [null, 5, 11]);
+	assert.deepEqual(["concealed", "hidden"].map((l) => at(l, { attackerOptions: [...keen, ...blind] }).flatDC), [null, 5]);   // lowest wins
+	assert.equal(at("hidden").flatDC, 11);   // without feats — world setting
+	assert.equal(adjustFlatDC(2, "concealed", keen), 2);   // never raises a lower world DC
+	assert.equal(adjustFlatDC(null, "observed", keen), null);
+	// Blind-Fight: not off-guard to a hidden attacker, still off-guard to an undetected one
+	const def = (lvl, targetOptions) => attackConsequences("observed", lvl, cfg(), { attackerIsPC: true, targetOptions });
+	assert.equal(def("hidden", blind).offGuard, false);
+	assert.equal(def("hidden", []).offGuard, true);
+	assert.equal(def("undetected", blind).offGuard, true);
+});
 
 const cfg = (o = {}) => ({ ...DEFAULTS, ...o });
 

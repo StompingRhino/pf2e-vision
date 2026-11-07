@@ -53,20 +53,49 @@ export function consequences(level, cfg) {
 }
 
 /**
+ * Feats that change the attacker's flat check (pf2e roll options of the attacker). Value per level: number = DC cap, null = no flat check.
+ * noOffGuard: levels at which the owner is not off-guard to an unseen attacker. Only unconditional feats; ponytail: Supernatural Senses
+ * (while raging), Revealing Stab (one Strike), Thousand Visions (range) are left out — add with a predicate when needed.
+ */
+export const SENSE_FEATS = [
+	{ options: ["feature:keen-eyes", "feat:keen-eyes"], flat: { concealed: 3, hidden: 9 } },
+	{ options: ["feat:blind-fight"], flat: { concealed: null, hidden: 5 }, noOffGuard: ["hidden"] }
+];
+const featsOf = (options) => {
+	const set = new Set(options ?? []);
+	return SENSE_FEATS.filter((f) => f.options.some((o) => set.has(o)));
+};
+
+/** Flat DC after the attacker's feats: the lowest wins, null (no check) beats any number. A feat never raises the world setting. */
+export function adjustFlatDC(dc, level, attackerOptions) {
+	if (dc == null) return null;
+	let out = dc;
+	for (const f of featsOf(attackerOptions)) {
+		if (!(level in f.flat)) continue;
+		const v = f.flat[level];
+		if (v === null) return null;
+		out = Math.min(out, v);
+	}
+	return out;
+}
+
+/**
  * Attack of A against T.
  * @param levelTA getLevel(T, A): how A sees T -> flat check done by A.
  * @param levelAT getLevel(A, T): how T sees A -> T is off-guard when A is hidden from T.
+ * attackerOptions / targetOptions: pf2e roll options of the actors (SENSE_FEATS).
  */
-export function attackConsequences(levelTA, levelAT, cfg, { attackerIsPC }) {
-	const flat = consequences(levelTA, cfg).flatDC;
+export function attackConsequences(levelTA, levelAT, cfg, { attackerIsPC, attackerOptions = [], targetOptions = [] }) {
+	const flat = adjustFlatDC(consequences(levelTA, cfg).flatDC, levelTA, attackerOptions);
 	const off = consequences(levelAT, cfg);
 	const useFlat = flat != null && flatApplies(cfg, attackerIsPC);
+	const immune = featsOf(targetOptions).some((f) => f.noOffGuard?.includes(levelAT));
 	return {
 		flatDC: useFlat ? flat : null,
 		onFail: val(cfg, "flat.onFail"),
 		message: val(cfg, "flat.message"),
-		offGuard: off.offGuard,
-		offGuardDamage: off.offGuardDamage
+		offGuard: off.offGuard && !immune,
+		offGuardDamage: off.offGuardDamage && !immune
 	};
 }
 
