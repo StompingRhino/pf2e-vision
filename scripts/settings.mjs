@@ -21,7 +21,7 @@ class AutomationMenu extends HandlebarsApplicationMixin(ApplicationV2) {
 	static DEFAULT_OPTIONS = {
 		id: `${MODULE_ID}-automation`,
 		tag: "form",
-		classes: [MODULE_ID, "pf2e-vision-settings"],
+		classes: [MODULE_ID, "pf2ev-app", "pf2e-vision-settings"],
 		position: { width: 520 },
 		window: { title: `${LOC}.settings.menu.name`, icon: "fa-solid fa-eye-slash", contentClasses: ["standard-form"] },
 		form: { handler: AutomationMenu.#onSubmit, closeOnSubmit: true }

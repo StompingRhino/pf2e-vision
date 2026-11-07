@@ -1,7 +1,8 @@
-import { MODULE_ID, loc } from "./constants.mjs";
+import { MODULE_ID, loc, levelChip } from "./constants.mjs";
 import { getConfig } from "./settings.mjs";
 import { actionMode, degreeOfSuccess, transition, selectObservers, isOffGuardLevel, recognizeAction } from "./logic.mjs";
 import * as store from "./store.mjs";
+import { ConfirmApp } from "./confirm-app.mjs";
 
 
 export function init() {}
@@ -76,7 +77,8 @@ async function onCreate(message) {
 		const was = store.getLevel(tgt.id, obs.id, scene);
 		const degree = degreeOfSuccess(total, dc, nat);
 		const becomes = transition(action, was, degree);
-		if (becomes !== was) rows.push({ observerId: obs.id, targetId: tgt.id, name: (action === "seek" ? tgt : obs).tok.name, dc, degree, was, becomes });
+		const who = action === "seek" ? tgt : obs;   // строка называет того, кто в ней меняется для ГМа: наблюдателя (у Поиска — цель)
+		rows.push({ observerId: obs.id, targetId: tgt.id, name: who.tok.name, side: who.hasPlayerOwner ? "pc" : "npc", dc, degree, was, becomes });
 	};
 	let note = "";
 	if (action === "seek") {
@@ -97,54 +99,69 @@ async function onCreate(message) {
 	const actionName = loc(`action.${action}`);
 	const title = loc("suggest.title", { actor: actorTok.name, action: actionName });
 	if (mode === "auto") {
-		if (!rows.length) return;
-		await store.applyChanges(rows.map(({ observerId, targetId, becomes }) => ({ observerId, targetId, level: becomes })), scene);
+		const changed = rows.filter((r) => r.becomes !== r.was);
+		if (!changed.length) return;
+		await store.applyChanges(changed.map(({ observerId, targetId, becomes }) => ({ observerId, targetId, level: becomes })), scene);
 		return ChatMessage.create({
-			content: `<p>${foundry.utils.escapeHTML(loc("suggest.autoSummary", { action: actionName, actor: actorTok.name, count: rows.length }))}</p>`,
+			content: `<div class="pf2ev-sheet"><header class="pf2ev-card-head"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>${foundry.utils.escapeHTML(loc("suggest.autoTitle"))}</span></header><div class="pf2ev-note"><p>${foundry.utils.escapeHTML(loc("suggest.autoSummary", { action: actionName, actor: actorTok.name, count: changed.length }))}</p></div></div>`,
 			whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id),
 			speaker: { alias: "PF2e Vision" }
 		});
 	}
 	if (!rows.length && !note) return;
 	const data = { title, note, rows, applied: false, sceneId: scene.id };
-	return ChatMessage.create({
+	const card = await ChatMessage.create({
 		content: await renderCard(data),
 		whisper: ChatMessage.getWhisperRecipients("GM").map((u) => u.id),
 		speaker: { alias: "PF2e Vision" },
 		flags: { [MODULE_ID]: { suggest: data } }
 	});
+	if (rows.length) openWindow(card);
+	return card;
 }
 
 function renderCard(data) {
-	const L = Object.fromEntries(["observer", "dc", "degree", "was", "becomes", "apply", "noChanges"].map((k) => [k, loc(`suggest.${k}`)]));
+	const L = Object.fromEntries(["observer", "dc", "degree", "was", "becomes", "open", "noChanges"].map((k) => [k, loc(`suggest.${k}`)]));
 	const lv = (l) => loc(`level.${l}`);
+	const shown = data.rows.filter((r) => r.becomes !== r.was);   // запись в чате — только изменения; все пары видны в окне
 	return foundry.applications.handlebars.renderTemplate(`modules/${MODULE_ID}/templates/suggest.hbs`, {
 		...data,
 		L,
 		intro: loc("suggest.intro"),
-		appliedText: loc("suggest.applied", { count: data.rows.filter((r) => r.done).length }),
-		rows: data.rows.map((r) => ({ ...r, degree: loc(`degree.${r.degree}`), was: lv(r.was), becomes: lv(r.becomes) }))
+		appliedText: loc("suggest.applied", { count: shown.length }),
+		shown: shown.map((r) => ({
+			...r, degreeKey: r.degree, degree: loc(`degree.${r.degree}`),
+			was: { ...levelChip(r.was), name: lv(r.was) }, becomes: { ...levelChip(r.becomes), name: lv(r.becomes) }
+		}))
 	});
+}
+
+/** The only way to apply: the confirmation window. The card is the record. */
+function openWindow(message) {
+	const data = message.flags?.[MODULE_ID]?.suggest;
+	if (!data || data.applied || !game.user.isGM) return;
+	new ConfirmApp({
+		title: data.title,
+		rows: data.rows,
+		onApply: async (edits, changes) => {
+			try {
+				await store.applyChanges(changes, game.scenes.get(data.sceneId));
+			} catch (e) {
+				console.error(`${MODULE_ID} |`, e);
+				ui.notifications.error(loc("notify.applyFailed"));
+				throw e;
+			}
+			const key = (c) => `${c.observerId}|${c.targetId}`;
+			const lv = new Map(changes.map((c) => [key(c), c.level]));
+			const rows = data.rows.filter((r) => lv.has(key(r))).map((r) => ({ ...r, becomes: lv.get(key(r)) }));
+			const next = { ...data, applied: true, rows };
+			await message.update({ content: await renderCard(next), [`flags.${MODULE_ID}.suggest`]: next });
+		}
+	}).render({ force: true });
 }
 
 function onRender(message, html) {
 	const data = message.flags?.[MODULE_ID]?.suggest;
 	if (!data || data.applied) return;
-	const btn = html.querySelector?.("[data-action=apply]");
-	if (!btn) return;
-	btn.addEventListener("click", async () => {
-		if (!game.user.isGM) return;
-		const picked = [...html.querySelectorAll("input[data-i]:checked")].map((i) => Number(i.dataset.i));
-		btn.disabled = true;
-		try {
-			await store.applyChanges(picked.map((i) => ({ observerId: data.rows[i].observerId, targetId: data.rows[i].targetId, level: data.rows[i].becomes })), game.scenes.get(data.sceneId));
-		} catch (e) {
-			console.error(`${MODULE_ID} |`, e);
-			ui.notifications.error(loc("notify.applyFailed"));
-			btn.disabled = false;
-			return;
-		}
-		const next = { ...data, applied: true, rows: data.rows.map((r, i) => ({ ...r, done: picked.includes(i) })) };
-		await message.update({ content: await renderCard(next), [`flags.${MODULE_ID}.suggest`]: next });
-	});
+	html.querySelector?.("[data-action=open]")?.addEventListener("click", () => openWindow(message));
 }

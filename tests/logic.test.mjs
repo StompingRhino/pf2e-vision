@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
 	DEL, consequences, attackConsequences, flatDC, actionMode, sameSide, selectObservers,
-	degreeOfSuccess, transition, buildDiff, mostVisible, recognizeAction, flatMessageMode, opacityFactor, adjustFlatDC
+	confirmRows, pickChanges, degreeOfSuccess, transition, buildDiff, mostVisible, recognizeAction, flatMessageMode, opacityFactor, adjustFlatDC
 } from "../scripts/logic.mjs";
 import { DEFAULTS, LEVELS, SETTINGS } from "../scripts/constants.mjs";
 
@@ -239,4 +239,32 @@ test("pickCombat: active > started on scene (viewed preferred); no drafts, no de
 	assert.equal(pickCombat({ active: null, viewed: v, contents: [] }, "s1"), null); // viewed already deleted
 	assert.equal(pickCombat({ active: null, viewed: null, contents: [st] }, "s2"), null);
 	assert.equal(pickCombat(undefined, "s1"), null);
+});
+
+test("confirm window: all observers listed, default = computed level, tick only on change", () => {
+	const rows = [
+		{ observerId: "a", targetId: "t", was: "observed", becomes: "hidden" },
+		{ observerId: "b", targetId: "t", was: "observed", becomes: "observed" }
+	];
+	const w = confirmRows(rows);
+	assert.equal(w.length, 2);
+	assert.deepEqual(w.map((r) => [r.level, r.apply]), [["hidden", true], ["observed", false]]);
+});
+
+test("confirm window: edited level and ticks go to the changes", () => {
+	const rows = [
+		{ observerId: "a", targetId: "t", was: "observed", becomes: "hidden" },
+		{ observerId: "b", targetId: "t", was: "observed", becomes: "observed" },
+		{ observerId: "c", targetId: "t", was: "hidden", becomes: "undetected" }
+	];
+	const edits = [
+		{ apply: true, level: "undetected" }, // edited
+		{ apply: true, level: "concealed" },  // unchanged observer fixed by hand
+		{ apply: false, level: "undetected" } // unticked
+	];
+	assert.deepEqual(pickChanges(rows, edits), [
+		{ observerId: "a", targetId: "t", level: "undetected" },
+		{ observerId: "b", targetId: "t", level: "concealed" }
+	]);
+	assert.deepEqual(pickChanges(rows, [{ apply: true, level: "observed" }, { apply: true, level: "bogus" }]), []);
 });

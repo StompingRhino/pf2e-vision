@@ -1,4 +1,4 @@
-import { MODULE_ID, LOC, loc as t, LEVELS, LEVEL_COLORS, LEVEL_ICONS } from "./constants.mjs";
+import { MODULE_ID, LOC, loc as t, LEVELS, LEVEL_COLORS, LEVEL_ICONS, fgFor } from "./constants.mjs";
 import { consequences, sameSide } from "./logic.mjs";
 import { getSetting, getConfig } from "./settings.mjs";
 import * as store from "./store.mjs";
@@ -6,11 +6,6 @@ import * as visuals from "./token-visuals.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const UNDO_LIMIT = 10;
-
-const fgFor = (hex) => {
-	const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-	return 0.299 * r + 0.587 * g + 0.114 * b > 140 ? "#1b1406" : "#f4efe4";
-};
 
 let instance = null;
 

@@ -64,10 +64,15 @@
       "degree": "Result",
       "was": "Was",
       "becomes": "Becomes",
+      "windowTitle": "Confirm visibility",
+      "open": "Open window",
+      "cancel": "Cancel",
       "apply": "Apply",
+      "include": "Apply this row",
       "applied": "Applied: {count}",
       "noChanges": "No changes",
       "noTargets": "No targets found for Seek",
+      "autoTitle": "Visibility: automatic",
       "autoSummary": "{action} by {actor}: {count} change(s) applied"
     },
     "notify": {

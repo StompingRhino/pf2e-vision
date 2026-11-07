@@ -1,19 +1,27 @@
-<div class="pf2e-vision-suggest">
-	<header><strong>{{title}}</strong> <em>{{intro}}</em></header>
-	{{#if note}}<p>{{note}}</p>{{/if}}
-	{{#if rows.length}}
-	<table>
-		<thead><tr><th></th><th>{{L.observer}}</th><th>{{L.dc}}</th><th>{{L.degree}}</th><th>{{L.was}}</th><th>{{L.becomes}}</th></tr></thead>
-		<tbody>
-		{{#each rows}}
-			<tr>
-				<td><input type="checkbox" data-i="{{@index}}" {{#if ../applied}}disabled{{/if}} checked></td>
-				<td>{{name}}</td><td>{{dc}}</td><td>{{degree}}</td><td>{{was}}</td><td>{{becomes}}</td>
-			</tr>
-		{{/each}}
-		</tbody>
-	</table>
-	{{#if applied}}<p><em>{{appliedText}}</em></p>
-	{{else}}<button type="button" data-action="apply">{{L.apply}}</button>{{/if}}
-	{{else}}<p>{{L.noChanges}}</p>{{/if}}
+<div class="pf2e-vision-suggest pf2ev-scard pf2ev-sheet">
+	<header class="pf2ev-card-head"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>{{title}}</span></header>
+	<div class="pf2ev-note">
+		<p class="pf2ev-sintro">{{intro}}</p>
+		{{#if note}}<p>{{note}}</p>{{/if}}
+		{{!-- чат узкий: строка списка вместо таблицы из пяти колонок; только пары, где уровень меняется (остальные — в окне) --}}
+		{{#if shown.length}}
+		<ul class="pf2ev-srows">
+			{{#each shown}}
+			<li>
+				<span class="pf2ev-sname">{{name}}</span>
+				<span class="pf2ev-smeta">{{../L.dc}} {{dc}} · <span class="pf2ev-degree" data-degree="{{degreeKey}}">{{degree}}</span></span>
+				<span class="pf2ev-strans">
+					<span class="pf2ev-chip" style="--c: {{was.color}}; --fg: {{was.fg}}"><img src="{{was.icon}}" alt="">{{was.name}}</span>
+					<i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+					<span class="pf2ev-chip" style="--c: {{becomes.color}}; --fg: {{becomes.fg}}"><img src="{{becomes.icon}}" alt="">{{becomes.name}}</span>
+				</span>
+			</li>
+			{{/each}}
+		</ul>
+		{{else}}<p class="pf2ev-sintro">{{L.noChanges}}</p>{{/if}}
+		{{#if applied}}{{#if shown.length}}<p><em>{{appliedText}}</em></p>{{/if}}{{/if}}
+	</div>
+	{{#unless applied}}{{#if rows.length}}
+	<div class="pf2ev-card-actions"><button type="button" class="pf2ev-sopen" data-action="open"><i class="fa-solid fa-eye"></i> {{L.open}}</button></div>
+	{{/if}}{{/unless}}
 </div>

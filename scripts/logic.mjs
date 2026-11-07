@@ -199,3 +199,23 @@ export function pickCombat(combats, sceneId) {
 	const ok = (combats?.contents ?? []).filter((c) => c.started && (!sceneId || c.combatants.some((p) => p.sceneId === sceneId)));
 	return ok.find((c) => c === combats.viewed) ?? ok[0] ?? null;
 }
+
+/**
+ * Rows of the confirmation window: every pair (also the unchanged ones), default level = the computed one,
+ * tick only where the computed level differs from `was`.
+ * @param rows [{observerId, targetId, was, becomes, ...}]
+ */
+export const confirmRows = (rows) => rows.map((r) => ({ ...r, level: r.becomes, apply: r.becomes !== r.was }));
+
+/**
+ * Changes for store.applyChanges from the edited window rows ([{apply, level}] in the order of `rows`).
+ * Unknown levels are dropped; a ticked row whose level equals `was` is a no-op and is dropped too.
+ */
+export function pickChanges(rows, edits) {
+	return rows.flatMap((r, i) => {
+		const e = edits[i];
+		return e?.apply && LEVELS.includes(e.level) && e.level !== r.was
+			? [{ observerId: r.observerId, targetId: r.targetId, level: e.level }]
+			: [];
+	});
+}

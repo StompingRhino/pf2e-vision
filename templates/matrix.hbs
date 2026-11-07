@@ -22,7 +22,7 @@
 	<p class="pf2ev-empty">{{localize "PF2EVISION.matrix.empty"}}</p>
 	{{else}}
 	<div class="pf2ev-grid" style="--n: {{count}}">
-		<div class="pf2ev-corner">{{localize "PF2EVISION.matrix.observer"}} ↓ · {{localize "PF2EVISION.matrix.target"}} →</div>
+		<div class="pf2ev-corner">{{localize "PF2EVISION.matrix.observer"}} <i class="fa-solid fa-arrow-down" aria-hidden="true"></i> · {{localize "PF2EVISION.matrix.target"}} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></div>
 		{{#each tokens}}
 		<button type="button" class="pf2ev-name pf2ev-col" data-action="fillCol" data-id="{{id}}" data-hl-t="{{id}}" data-tooltip="{{../colAll}}: {{name}}">
 			<span class="pf2ev-avatar" data-side="{{side}}">{{initial}}</span>

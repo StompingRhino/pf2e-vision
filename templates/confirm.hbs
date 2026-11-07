@@ -1,0 +1,30 @@
+<div class="pf2ev-confirm">
+	<header class="pf2ev-confirm-head">{{title}}</header>
+	<div class="pf2ev-confirm-grid">
+		<div class="pf2ev-confirm-th">
+			<span></span><span>{{L.observer}}</span><span>{{L.dc}}</span><span>{{L.degree}}</span><span>{{L.was}}</span><span></span><span>{{L.becomes}}</span>
+		</div>
+		{{#each rows}}
+		<div class="pf2ev-crow">
+			<label class="pf2ev-include" data-tooltip="{{../L.include}}"><input type="checkbox" name="apply-{{i}}" {{checked apply}} aria-label="{{../L.include}}: {{name}}"></label>
+			<span class="pf2ev-who"><span class="pf2ev-avatar" data-side="{{side}}">{{initial}}</span><span class="pf2ev-label">{{name}}</span></span>
+			<span class="pf2ev-dc">{{dc}}</span>
+			<span class="pf2ev-degree" data-degree="{{degreeKey}}">{{degree}}</span>
+			<span class="pf2ev-chip" style="--c: {{was.color}}; --fg: {{was.fg}}" data-tooltip="{{was.name}}"><img src="{{was.icon}}" alt="">{{was.short}}</span>
+			<i class="fa-solid fa-arrow-right pf2ev-to" aria-hidden="true"></i>
+			<span class="pf2ev-picker" role="radiogroup" aria-label="{{../L.becomes}}: {{name}}">
+				{{#each levels}}
+				<label class="pf2ev-pick" style="--c: {{color}}; --fg: {{fg}}" data-tooltip="{{name}}">
+					<input type="radio" name="level-{{../i}}" value="{{level}}" data-i="{{../i}}" {{checked on}} aria-label="{{name}}">
+					<img src="{{icon}}" alt="">
+				</label>
+				{{/each}}
+			</span>
+		</div>
+		{{/each}}
+	</div>
+	<footer class="pf2ev-confirm-foot">
+		<button type="button" class="pf2ev-ghost" data-action="cancel">{{L.cancel}}</button>
+		<button type="button" class="pf2ev-primary" data-action="apply"><i class="fa-solid fa-eye"></i> {{L.apply}}</button>
+	</footer>
+</div>

@@ -1,73 +1,187 @@
-/* Owner: piece C (matrix window). Pieces D/F may append their own marked sections. */
-.pf2ev-app .window-content { background: #17151b; }
-.pf2ev-app .pf2ev-matrix {
-	--pf2ev-line: #3a3540;
-	--pf2ev-text: #ebe3d2;
-	--pf2ev-muted: #a39b8b;
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	min-width: 0;
-	color: var(--pf2ev-text);
-	font-family: var(--sans-serif), Signika, sans-serif;
-	font-size: 13px;
-	user-select: none;
+/* Дизайн-система наследуется от pf2e-automato (см. DESIGN.md): пергамент только на .window-content, родная шапка Foundry не трогается.
+   Свои классы pf2ev-*: модуль не зависит от установленного automato. */
+
+/* ---- окна: пергамент и светлая схема на содержимом ---- */
+.pf2ev-app .window-content {
+	--background: #f8f4f1; --color-text-primary: #2a2420; --color-text-secondary: #5b5048;
+	--color-scheme: light; color-scheme: light;
+	--checkbox-background-color: #fffdf9; --checkbox-checked-color: #5e0000; --checkbox-checkmark-color: #fff;
+	background: #f8f4f1; color: #2a2420; scrollbar-color: #baa991 transparent;
+	font-family: Roboto, system-ui, sans-serif; font-size: 13px; line-height: 1.45;
 }
-.pf2ev-app .pf2ev-matrix button { font: inherit; cursor: pointer; }
+.pf2ev-app :focus-visible { outline: 2px solid #171f69; outline-offset: 2px; }
+/* флажки: переменные Foundry задаются на самом input (на предке их перекрывает тема ядра), как в «Мастерской» automato */
+.pf2ev-app input[type="checkbox"] {
+	--checkbox-size: 16px; --checkbox-background-color: #fffdf9; --checkbox-checked-color: #5e0000; --checkbox-checkmark-color: #fff;
+}
+.pf2ev-app input[type="checkbox"]::before { outline: 1px solid #786452; }
+/* длинное окно настроек не уходит за экран: прокрутка внутри содержимого */
+.pf2ev-app.pf2e-vision-settings { max-height: 88vh; }
+.pf2ev-app.pf2e-vision-settings .window-content { overflow-y: auto; }
+.pf2ev-app button { font: 500 13px/1.15 Roboto, system-ui, sans-serif; cursor: pointer; }
+.pf2ev-app button:disabled { opacity: .5; cursor: not-allowed; }
+.pf2ev-app ::selection { background: #d8c384; color: #2a2420; }
+
+/* обычная кнопка: бумага, рамка #baa991; наведение — белый и #786452 */
+.pf2ev-app :is(.pf2ev-undo, .pf2ev-allies, .pf2ev-name, .pf2ev-ghost, .pf2ev-primary, .pf2e-vision-settings-body .form-footer button) {
+	color: #2a2420; background: #fffdf9; border: 1px solid #baa991; border-radius: 3px; box-shadow: none;
+	transition: background-color .15s, border-color .15s;
+}
+.pf2ev-app :is(.pf2ev-undo, .pf2ev-allies, .pf2ev-name, .pf2ev-ghost, .pf2e-vision-settings-body .form-footer button):hover:not(:disabled) { background: #fff; border-color: #786452; }
+/* единственная основная кнопка окна — бордо */
+.pf2ev-app :is(.pf2ev-primary, .pf2e-vision-settings-body .form-footer button) { color: #fff; background: #5e0000; border-color: #5e0000; }
+.pf2ev-app :is(.pf2ev-primary, .pf2e-vision-settings-body .form-footer button):hover:not(:disabled) { color: #fff; background: #7a1414; border-color: #7a1414; }
+.pf2ev-app .pf2ev-ghost { background: transparent; border-color: transparent; color: #5b5048; }
+.pf2ev-app .pf2ev-ghost:hover:not(:disabled) { background: transparent; border-color: #baa991; }
+
+/* ---- матрица ---- */
+.pf2ev-app .pf2ev-matrix { display: flex; flex-direction: column; gap: 10px; min-width: 0; user-select: none; }
 .pf2ev-app .pf2ev-matrix img { width: 18px; height: 18px; border: 0; flex: none; object-fit: contain; }
 
 .pf2ev-app .pf2ev-toolbar { display: flex; gap: 6px; }
-/* Core gives every button a fixed height; our multi-line buttons size to content. */
-.pf2ev-app :is(.pf2ev-brush, .pf2ev-undo, .pf2ev-name) { height: auto; min-height: var(--button-size, 28px); }
+.pf2ev-app :is(.pf2ev-brush, .pf2ev-undo, .pf2ev-name) { height: auto; min-height: 32px; }
+/* кисти — равноправные варианты: цвет уровня несёт смысл, выбранная — рамкой #786452 и золотым кольцом, не бордо */
 .pf2ev-app .pf2ev-brush {
-	flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px;
-	padding: 6px 4px; border-radius: 6px; background: var(--c); color: var(--fg); border: 2px solid transparent;
+	flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; margin: 0;
+	padding: 6px 4px; border-radius: 3px; background: var(--c); color: var(--fg); border: 1px solid #baa991;
+	transition: border-color .15s, box-shadow .15s;
 }
-.pf2ev-app .pf2ev-brush[aria-pressed="true"] { border-color: #f1d27a; box-shadow: 0 0 6px #f1d27a88; }
+.pf2ev-app .pf2ev-brush:hover { border-color: #786452; }
+.pf2ev-app .pf2ev-brush[aria-pressed="true"] { border-color: #786452; box-shadow: 0 0 0 2px #d8c384; }
 .pf2ev-app .pf2ev-brush-name { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.pf2ev-app .pf2ev-brush-key { font-size: 11px; opacity: 0.75; }
+.pf2ev-app .pf2ev-brush-key { font: 700 11px "Roboto Condensed", Roboto, sans-serif; letter-spacing: .06em; opacity: .8; }
 .pf2ev-app .pf2ev-undo {
-	width: 64px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-	border-radius: 6px; border: 1px solid var(--pf2ev-line); background: #201d24; color: var(--pf2ev-text); font-size: 12px;
+	width: 64px; flex: none; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px;
 }
-.pf2ev-app .pf2ev-undo:disabled { opacity: 0.4; cursor: default; }
 
 .pf2ev-app .pf2ev-subbar { display: flex; align-items: center; gap: 12px; }
-.pf2ev-app .pf2ev-allies {
-	padding: 3px 10px; border-radius: 4px; border: 1px solid var(--pf2ev-line); background: #201d24; color: var(--pf2ev-text);
-}
-.pf2ev-app .pf2ev-allies[aria-pressed="true"] { background: #4a3a1a; border-color: #c9a85a; }
-.pf2ev-app .pf2ev-hint { color: var(--pf2ev-muted); font-size: 12px; }
-.pf2ev-app .pf2ev-empty { color: var(--pf2ev-muted); text-align: center; padding: 24px 0; }
+.pf2ev-app .pf2ev-allies { height: 30px; margin: 0; padding: 0 10px; }
+.pf2ev-app .pf2ev-allies > i { margin-right: 6px; }
+.pf2ev-app .pf2ev-allies[aria-pressed="true"] { background: #443730; border-color: #443730; color: #fff; }
+.pf2ev-app .pf2ev-hint { color: #5b5048; font-size: 12px; }
+.pf2ev-app .pf2ev-empty { color: #5b5048; text-align: center; padding: 18px 10px; margin: 0; border: 1px dashed #baa991; border-radius: 3px; }
 
-.pf2ev-app .pf2ev-grid {
-	display: grid; gap: 3px;
-	grid-template-columns: 150px repeat(var(--n), minmax(0, 1fr));
-}
+.pf2ev-app .pf2ev-grid { display: grid; gap: 3px; grid-template-columns: 150px repeat(var(--n), minmax(0, 1fr)); }
 .pf2ev-app .pf2ev-corner {
-	color: var(--pf2ev-muted); font-size: 12px; display: flex; align-items: flex-end; padding: 0 0 4px 4px;
-	font-family: var(--serif), "Palatino Linotype", Georgia, serif;
+	display: flex; align-items: flex-end; padding: 0 0 4px 4px;
+	font: 700 11px "Roboto Condensed", Roboto, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #443730;
 }
-.pf2ev-app .pf2ev-name {
-	min-width: 0; display: flex; align-items: center; gap: 6px; padding: 4px 2px; margin: 0;
-	border-radius: 4px; border: 1px dashed var(--pf2ev-line); background: transparent; color: var(--pf2ev-text);
-}
-.pf2ev-app .pf2ev-name:hover { border-color: #c9a85a; }
+.pf2ev-app .pf2ev-name { min-width: 0; display: flex; align-items: center; gap: 6px; padding: 4px 6px; margin: 0; border-color: #ddd2c0; }
 .pf2ev-app .pf2ev-col { flex-direction: column; gap: 3px; }
 .pf2ev-app .pf2ev-row { text-align: left; }
 .pf2ev-app .pf2ev-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+/* кружок-инициал: золотая рамка, как портрет в плитке призыва; сторона — заливкой (PC тёмная, NPC бумага) */
 .pf2ev-app .pf2ev-avatar {
-	width: 24px; height: 24px; border-radius: 12px; flex: none; display: flex; align-items: center; justify-content: center;
-	font-weight: 600; background: #7a1f1f; color: #f3e6cf;
+	width: 24px; height: 24px; box-sizing: border-box; border-radius: 12px; flex: none; display: flex; align-items: center; justify-content: center;
+	font: 600 12px/1 Eczar, Georgia, serif; background: #fffdf9; color: #2a2420; border: 2px solid #d8c384;
 }
-.pf2ev-app .pf2ev-avatar[data-side="pc"] { background: #c9a85a; color: #1b1406; }
+.pf2ev-app .pf2ev-avatar[data-side="pc"] { background: #443730; color: #fff; }
 
 .pf2ev-app .pf2ev-cell {
 	height: 40px; min-width: 0; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; gap: 4px;
-	border-radius: 4px; border: 0; font-size: 12px; background: var(--c); color: var(--fg); cursor: crosshair;
+	border-radius: 3px; border: 1px solid rgba(42, 36, 32, .35); font-size: 12px; background: var(--c); color: var(--fg); cursor: crosshair;
+	font-variant-numeric: tabular-nums;
 }
+.pf2ev-app .pf2ev-cell:hover { border-color: #786452; }
 .pf2ev-app .pf2ev-cell .pf2ev-short { white-space: nowrap; overflow: hidden; }
 .pf2ev-app .pf2ev-cell img { width: 16px; height: 16px; }
-.pf2ev-app .pf2ev-self { background: #121015; color: #4d4755; cursor: default; }
-.pf2ev-app .pf2ev-collapsed { background: repeating-linear-gradient(45deg, #1d1a21, #1d1a21 4px, #17151b 4px, #17151b 8px); color: #4d4755; cursor: default; }
-.pf2ev-app button:focus-visible { outline: 2px solid #c9a85a; outline-offset: 1px; }
+.pf2ev-app .pf2ev-self { background: #efe7dc; border-color: #ddd2c0; color: #5b5048; cursor: default; }
+.pf2ev-app .pf2ev-collapsed { background: repeating-linear-gradient(45deg, #efe7dc, #efe7dc 4px, #f8f4f1 4px, #f8f4f1 8px); border-color: #ddd2c0; color: #5b5048; cursor: default; }
+
+/* ---- окно подтверждения ---- */
+.pf2ev-app .pf2ev-confirm { display: flex; flex-direction: column; gap: 10px; }
+.pf2ev-app .pf2ev-confirm-head {
+	font: 600 15px/1.2 Eczar, Georgia, serif; color: #2a2420; padding-bottom: 6px; border-bottom: 1px solid #d8c384;
+}
+.pf2ev-app .pf2ev-confirm-grid {
+	display: grid; align-items: center; column-gap: 10px; row-gap: 4px;
+	grid-template-columns: auto minmax(0, 1fr) auto auto auto auto auto;
+}
+.pf2ev-app :is(.pf2ev-confirm-th, .pf2ev-crow) { display: contents; }
+.pf2ev-app .pf2ev-confirm-th > span {
+	font: 700 11px "Roboto Condensed", Roboto, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #443730; padding-bottom: 2px;
+}
+.pf2ev-app .pf2ev-crow:has(.pf2ev-include input:not(:checked)) > :not(.pf2ev-include) { opacity: .45; }
+.pf2ev-app .pf2ev-crow > * { transition: opacity 120ms ease-out; }
+.pf2ev-app .pf2ev-include { display: flex; align-items: center; cursor: pointer; }
+.pf2ev-app .pf2ev-include input { margin: 0; width: 16px; height: 16px; accent-color: #5e0000; cursor: pointer; }
+.pf2ev-app .pf2ev-who { min-width: 0; display: flex; align-items: center; gap: 8px; }
+.pf2ev-app .pf2ev-dc { font-variant-numeric: tabular-nums; text-align: right; }
+.pf2ev-app .pf2ev-to { color: #5b5048; font-size: 11px; }
+
+/* степени успеха: тёмные цвета pf2e для пергамента */
+.pf2ev-degree { white-space: nowrap; font-weight: 500; }
+.pf2ev-degree[data-degree="criticalSuccess"] { color: #1d6b1d; }
+.pf2ev-degree[data-degree="success"] { color: #1f3fbf; }
+.pf2ev-degree[data-degree="failure"] { color: #b33a00; }
+.pf2ev-degree[data-degree="criticalFailure"] { color: #b00000; }
+
+/* значок уровня: цвет и иконка pf2e, как у ячейки матрицы */
+.pf2ev-chip {
+	display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 4px; border-radius: 2px;
+	background: var(--c); color: var(--fg); border: 1px solid rgba(42, 36, 32, .35); font-size: 12px; white-space: nowrap; line-height: 18px;
+}
+.pf2ev-chip img { width: 16px; height: 16px; border: 0; flex: none; object-fit: contain; }
+
+/* ряд уровней — радио-сегменты: выбранный рамкой #786452 и золотым кольцом */
+.pf2ev-app .pf2ev-picker { display: flex; gap: 3px; }
+.pf2ev-app .pf2ev-pick {
+	position: relative; width: 28px; height: 28px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;
+	border-radius: 3px; background: var(--c); border: 1px solid #baa991; cursor: pointer; transition: border-color .12s ease-out, box-shadow .12s ease-out;
+}
+.pf2ev-app .pf2ev-pick img { width: 18px; height: 18px; border: 0; object-fit: contain; }
+.pf2ev-app .pf2ev-pick input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.pf2ev-app .pf2ev-pick:hover { border-color: #786452; }
+.pf2ev-app .pf2ev-pick:has(input:checked) { border-color: #786452; box-shadow: 0 0 0 2px #d8c384; }
+.pf2ev-app .pf2ev-pick:has(input:focus-visible) { outline: 2px solid #171f69; outline-offset: 2px; }
+
+.pf2ev-app .pf2ev-confirm-foot { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid #baa991; }
+.pf2ev-app .pf2ev-confirm-foot button { flex: 1; width: auto; height: 32px; margin: 0; padding: 0 12px; }
+.pf2ev-app .pf2ev-confirm-foot button > i { margin-right: 6px; }
+
+/* ---- окно «Автоматизация» ---- */
+.pf2ev-app .pf2e-vision-settings-body { display: flex; flex-direction: column; gap: 10px; }
+.pf2ev-app .pf2e-vision-settings-body fieldset { margin: 0; padding: 8px 12px 4px; border: 1px solid #baa991; border-radius: 3px; background: #fffdf9; }
+.pf2ev-app .pf2e-vision-settings-body legend { padding: 0 6px; font: 600 15px/1.2 Eczar, Georgia, serif; color: #2a2420; }
+.pf2ev-app .pf2e-vision-settings-body .form-group { margin: 0 0 8px; padding-bottom: 8px; border-bottom: 1px solid #ddd2c0; }
+.pf2ev-app .pf2e-vision-settings-body .form-group:last-child { border-bottom: 0; padding-bottom: 0; }
+.pf2ev-app .pf2e-vision-settings-body .form-group > label { font: 700 11px "Roboto Condensed", Roboto, sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #443730; }
+.pf2ev-app .pf2e-vision-settings-body .hint { color: #5b5048; font-size: 12px; }
+.pf2ev-app .pf2e-vision-settings-body :is(input[type="number"], select) {
+	height: 30px; padding: 0 8px; font: inherit; color: #2a2420; background: #fff; border: 1px solid #baa991; border-radius: 3px; box-shadow: none;
+}
+.pf2ev-app .pf2e-vision-settings-body input[type="number"] { text-align: right; font-variant-numeric: tabular-nums; }
+.pf2ev-app .pf2e-vision-settings-body input[type="checkbox"] { accent-color: #5e0000; }
+.pf2ev-app .pf2e-vision-settings-body .form-footer { margin-top: 0; padding-top: 10px; border-top: 1px solid #baa991; }
+.pf2ev-app .pf2e-vision-settings-body .form-footer button { flex: 1; height: 32px; margin: 0; padding: 0 12px; }
+.pf2ev-app .pf2e-vision-settings-body .form-footer button > i { margin-right: 6px; }
+
+/* ---- карточка в чате: подложка как карточка шёпота Automation ---- */
+.pf2ev-sheet {
+	color-scheme: light; overflow: hidden; color: #2a2420; background: #f8f4f1; border: 1px solid #baa991; border-radius: 3px;
+	font: 400 13px/1.45 Roboto, system-ui, sans-serif;
+}
+.pf2ev-sheet *:focus-visible { outline: 2px solid #171f69; outline-offset: 2px; }
+.pf2ev-card-head {
+	display: flex; align-items: center; gap: 8px; margin: 0; padding: 6px 10px 5px;
+	font: 600 15px/1.2 Eczar, Georgia, serif; color: #2a2420; background: #efe7dc; border-bottom: 1px solid #d8c384;
+}
+.pf2ev-card-head i { flex: none; width: 16px; text-align: center; font-size: 13px; color: #5e0000; }
+.pf2ev-note { padding: 8px 10px; }
+.pf2ev-note p { margin: 0 0 .4em; }
+.pf2ev-note p:last-child { margin-bottom: 0; }
+.pf2ev-sheet .pf2ev-sintro { color: #5b5048; font-size: 12px; }
+.pf2ev-sheet .pf2ev-srows { list-style: none; margin: .4em 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pf2ev-sheet .pf2ev-srows li { display: flex; flex-direction: column; gap: 3px; margin: 0; padding: 0 0 6px; border-bottom: 1px solid #ddd2c0; }
+.pf2ev-sheet .pf2ev-srows li:last-child { border-bottom: 0; padding-bottom: 0; }
+.pf2ev-sheet .pf2ev-sname { font-weight: 600; }
+.pf2ev-sheet .pf2ev-smeta { font-size: 12px; color: #5b5048; font-variant-numeric: tabular-nums; }
+.pf2ev-sheet .pf2ev-strans { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.pf2ev-sheet .pf2ev-strans > i { color: #5b5048; font-size: 11px; }
+.pf2ev-sheet .pf2ev-card-actions { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 0 10px 10px; }
+.pf2ev-sheet .pf2ev-sopen {
+	width: 100%; height: auto; min-height: 30px; margin: 0; padding: 5px 10px; font: 500 13px/1.15 Roboto, system-ui, sans-serif;
+	color: #fff; background: #5e0000; border: 1px solid #5e0000; border-radius: 3px; box-shadow: none; cursor: pointer; transition: background-color .15s, border-color .15s;
+}
+.pf2ev-sheet .pf2ev-sopen:hover { background: #7a1414; border-color: #7a1414; }
+.pf2ev-sheet .pf2ev-sopen > i { margin-right: 6px; }

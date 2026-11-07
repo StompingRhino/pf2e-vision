@@ -9,7 +9,7 @@ export const loc = (key, data) => game.i18n.format(`${LOC}.${key}`, data);
 export const LEVELS = ["observed", "concealed", "hidden", "undetected", "unnoticed"];
 
 export const LEVEL_COLORS = {
-	observed: "#2b2830",
+	observed: "#e6dccb",   // обычное состояние — тихая бумага на пергаменте, цветом выделяются только отклонения
 	concealed: "#8fb8d4",
 	hidden: "#e3a23b",
 	undetected: "#b8483a",
@@ -19,6 +19,15 @@ export const LEVEL_COLORS = {
 export const LEVEL_ICONS = Object.fromEntries(
 	LEVELS.map((l) => [l, `systems/pf2e/icons/conditions/${l}.webp`])
 );
+
+/** Readable text colour on a level colour (matrix brushes and cells, confirm window and card chips). */
+export const fgFor = (hex) => {
+	const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+	return 0.299 * r + 0.587 * g + 0.114 * b > 140 ? "#1b1406" : "#f4efe4";
+};
+
+/** Level chip data for templates: colour, text colour, pf2e condition icon. */
+export const levelChip = (level) => ({ level, color: LEVEL_COLORS[level], fg: fgFor(LEVEL_COLORS[level]), icon: LEVEL_ICONS[level] });
 
 export const MODES = ["off", "suggest", "auto"];
 
