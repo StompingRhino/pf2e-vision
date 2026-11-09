@@ -7,7 +7,14 @@ import { ConfirmApp } from "./confirm-app.mjs";
 
 export function init() {}
 
+// Исполнитель — одна вкладка активного ГМа: иначе вкладки того же ГМа двоят окна и записи. Замок вкладок браузера (Web Locks) на пользователя;
+// без него (страница не в secure context, например http по IP) — как раньше, каждая вкладка.
+let lead = false;
+const runner = () => game.user === game.users.activeGM && lead;
+
 export function ready() {
+	if (navigator.locks) navigator.locks.request(`pf2e-vision-runner-${game.user.id}`, () => { lead = true; return new Promise(() => {}); }).catch(() => { lead = true; });   // замок отклонён — как без замка
+	else lead = true;
 	Hooks.on("createChatMessage", onCreate);
 	Hooks.on("createRegion", onRegion);
 	Hooks.on("renderChatMessageHTML", onRender);
@@ -52,7 +59,7 @@ async function seekTargetIds(message, ctx) {
 	return ids;
 }
 
-const onCreate = (message) => (game.user === game.users.activeGM ? run(message) : undefined);
+const onCreate = (message) => (runner() ? run(message) : undefined);
 
 /** Seek without explicit targets: the author picks the area after the roll (pf2e's own area links place the region). */
 async function postAreaCard(message, seeker, scene) {
@@ -76,7 +83,7 @@ function areaCard(done) {
 
 /** A region placed from the area card: the active GM computes the Seek once, then removes the region. */
 async function onRegion(region) {
-	if (game.user !== game.users.activeGM) return;
+	if (!runner()) return;
 	const card = game.messages.get(region.flags?.pf2e?.messageId);
 	const area = card?.flags?.[MODULE_ID]?.seekArea;
 	if (!area) return;

@@ -2,7 +2,7 @@
 
 **English.** Beta. A Foundry VTT v14 module for the PF2e system (8.1+). In an active combat the GM sets, per pair of tokens, how well each observer sees each target (Observed / Concealed / Hidden / Undetected / Unnoticed) in a "brush" matrix window. Players see the result on the canvas; attack rolls get flat checks and off-guard; Hide / Sneak / Seek rolls can propose or apply visibility changes. Requires lib-wrapper only. UI languages: Russian and English. The rest of this README is in Russian.
 
-> **Тестовая версия 0.9.0. Перед установкой сделайте копию мира.**
+> **Тестовая версия 0.9.1. Перед установкой сделайте копию мира.**
 
 ## Что делает
 
