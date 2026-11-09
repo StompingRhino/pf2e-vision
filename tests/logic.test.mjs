@@ -268,3 +268,32 @@ test("confirm window: edited level and ticks go to the changes", () => {
 	]);
 	assert.deepEqual(pickChanges(rows, [{ apply: true, level: "observed" }, { apply: true, level: "bogus" }]), []);
 });
+
+import { isCastCall, needsSpellFlat, seekAreaTargets, coneOriginOk } from "../scripts/logic.mjs";
+
+test("spell flat check: only an outermost real cast, only targeted non-attack non-area spells", () => {
+	assert.equal(isCastCall({ actualCast: true }, 0), true);
+	assert.equal(isCastCall({ actualCast: true, create: false }, 0), false);   // variant button
+	assert.equal(isCastCall({}, 0), false);   // card preview from the sheet
+	assert.equal(isCastCall({ actualCast: true }, 1), false);   // nested variant call
+	const spell = (o) => ({ isAttack: false, area: null, system: { target: { value: "1 creature" } }, ...o });
+	assert.equal(needsSpellFlat(spell()), true);
+	assert.equal(needsSpellFlat(spell({ isAttack: true })), false);
+	assert.equal(needsSpellFlat(spell({ area: { type: "burst" } })), false);
+	assert.equal(needsSpellFlat(spell({ system: { target: { value: "" } } })), false);
+});
+
+test("Seek area: inside the region and hidden from the seeker", () => {
+	const ps = [{ id: "a" }, { id: "b" }, { id: "c" }];
+	const lv = { a: "hidden", b: "observed", c: "undetected" };
+	assert.deepEqual(seekAreaTargets(ps, (p) => p.id !== "c", (p) => lv[p.id]).map((p) => p.id), ["a"]);
+	assert.deepEqual(seekAreaTargets(ps, () => true, (p) => lv[p.id]).map((p) => p.id), ["a", "c"]);
+});
+
+test("Seek cone vertex must be at the seeker", () => {
+	const rect = { x: 500, y: 300, width: 100, height: 100 };
+	assert.equal(coneOriginOk({ x: 550, y: 350 }, rect, 100), true);
+	assert.equal(coneOriginOk({ x: 700, y: 350 }, rect, 100), true);   // neighbouring cell edge
+	assert.equal(coneOriginOk({ x: 900, y: 350 }, rect, 100), false);
+	assert.equal(coneOriginOk({ x: 550, y: 100 }, rect, 100), false);
+});

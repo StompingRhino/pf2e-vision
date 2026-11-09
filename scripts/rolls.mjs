@@ -1,6 +1,6 @@
 // Attack rolls (flat check, off-guard on hit) and off-guard on damage.
 import { MODULE_ID, loc } from "./constants.mjs";
-import { attackConsequences, flatMessageMode } from "./logic.mjs";
+import { attackConsequences, flatMessageMode, isCastCall, needsSpellFlat } from "./logic.mjs";
 import { getConfig, getSetting } from "./settings.mjs";
 import { getLevel, combatOf } from "./store.mjs";
 
@@ -123,37 +123,64 @@ async function checkRoll(wrapped, ...args) {
 
 let casting = 0;
 
-/** Spell card posted: targeted spells without an attack roll get a flat check per target. Variants re-enter toMessage, so only the outermost call checks. */
+/**
+ * Real cast of a targeted spell without an attack: flat checks are rolled before the card, the failed targets go into the card's
+ * flag at creation (AuTOMATO reads it), the check messages follow the card. Variants re-enter toMessage, so only the outermost call checks.
+ */
 async function spellMessage(wrapped, event, options = {}, ...rest) {
 	casting++;
-	let message;
 	try {
-		message = await wrapped(event, options, ...rest);
+		let flat = null;
+		if (isCastCall(options, casting - 1)) {
+			try {
+				flat = await rollSpellFlat(this, undefined, { mode: options.mode, event });
+			} catch (err) {
+				warn("spellFlat", err);
+			}
+		}
+		if (!flat) return await wrapped(event, options, ...rest);
+		const draft = await wrapped(event, { ...options, create: false }, ...rest);
+		if (!draft) return draft;
+		if (flat.failed.length) draft.updateSource({ [`flags.${MODULE_ID}.flatFailed`]: flat.failed });
+		const message = await getDocumentClass("ChatMessage").create(draft.toObject(), { renderSheet: false });
+		if (message) await flat.publish();
+		return message;
 	} finally {
 		casting--;
 	}
-	if (casting || !message || options.create === false) return message;
-	try {
-		await spellFlatChecks(this, options.mode, event);
-	} catch (err) {
-		warn("spellFlat", err);
-	}
-	return message;
 }
 
-// ponytail: any posted spell card counts as a cast (pf2e has 4 spellcasting classes, all ending in toMessage); hook the casts if sharing cards mid-combat misfires.
-async function spellFlatChecks(spell, mode, event) {
-	if (!getSetting("flat.spells") || !spell.actor || spell.isAttack || spell.area || !spell.system.target?.value) return;
-	for (const t of game.user.targets) {
-		const target = t.document;
-		const attacker = findAttacker(spell.actor, target, null);
+/**
+ * Silent flat checks of a spell against targets (default: the user's targets); null if none is needed.
+ * @returns {Promise<{failed: string[], publish: () => Promise<void>} | null>} failed = TokenDocument UUIDs; publish() posts the check messages (after the card)
+ */
+export async function rollSpellFlat(spell, targets = [...game.user.targets], { mode, event } = {}) {
+	if (!getSetting("flat.spells") || !spell?.actor || !needsSpellFlat(spell)) return null;
+	const failed = [], posts = [];
+	for (const t of targets) {
+		const target = doc(t);
+		const attacker = target && findAttacker(spell.actor, target, null);
 		const info = evaluate(attacker, target);
 		if (info?.flatDC == null) continue;
 		const roll = await new Roll("1d20").evaluate();
 		const passed = roll.total >= info.flatDC;
+		if (!passed) failed.push(target.uuid);
 		const note = passed ? "" : `. ${loc("rolls.spellNoEffect", { spell: spell.name, target: target.name })}`;
-		await publish(roll, attacker, target, info.flatDC, passed, flatMode({ messageMode: mode }, info.message, event), note);
+		posts.push(() => publish(roll, attacker, target, info.flatDC, passed, flatMode({ messageMode: mode }, info.message, event), note));
 	}
+	if (!posts.length) return null;
+	return {
+		failed,
+		publish: async () => {
+			for (const post of posts) {
+				try {
+					await post();
+				} catch (err) {
+					warn("publish", err);
+				}
+			}
+		}
+	};
 }
 
 /** Strike damage/critical closures live in actor data; re-wrap them after every data preparation. */
@@ -183,14 +210,11 @@ function withOffGuard(actor, params) {
 	return params;
 }
 
-/** Spell attacks: getDamage ignores params.options, so give the spell's actor a temporary ephemeral off-guard effect on the target. */
-async function spellDamage(wrapped, params, ...rest) {
-	const actor = this.actor;
+/** getDamage and the elemental blast ignore params.options, so give the actor a temporary ephemeral off-guard effect on the target for the call. */
+async function underOffGuard(actor, evaluateFn, run) {
 	let remove = null;
 	try {
-		const target = doc(params?.target);
-		const attacker = target && this.isAttack && findAttacker(actor, target, null);
-		const info = evaluate(attacker, target);
+		const info = evaluateFn();
 		if (info?.offGuardDamage) {
 			const effect = () => offGuardSource(info.levelAT);
 			const entry = (actor.synthetics.ephemeralEffects.damage ??= { origin: [], target: [] });
@@ -201,13 +225,28 @@ async function spellDamage(wrapped, params, ...rest) {
 			};
 		}
 	} catch (err) {
-		warn("spellDamage", err);
+		warn("underOffGuard", err);
 	}
 	try {
-		return await wrapped(params, ...rest);
+		return await run();
 	} finally {
 		remove?.();
 	}
+}
+
+function spellDamage(wrapped, params, ...rest) {
+	return underOffGuard(this.actor, () => {
+		const target = doc(params?.target);
+		return evaluate(target && this.isAttack && findAttacker(this.actor, target, null), target);
+	}, () => wrapped(params, ...rest));
+}
+
+/** Elemental Blast takes the target from the user's targets, like withOffGuard for strikes. */
+function blastDamage(wrapped, params, ...rest) {
+	return underOffGuard(this.actor, () => {
+		const target = params?.getFormula ? null : doc(game.user.targets.first());
+		return evaluate(target && findAttacker(this.actor, target, params?.checkContext), target);
+	}, () => wrapped(params, ...rest));
 }
 
 export function init() {
@@ -230,4 +269,5 @@ export function init() {
 export function ready() {
 	// MIXED: flat.onFail = "cancel" returns null without calling the wrapped roll, which WRAPPER forbids.
 	libWrapper.register(MODULE_ID, "game.pf2e.Check.roll", checkRoll, "MIXED");
+	libWrapper.register(MODULE_ID, "game.pf2e.ElementalBlast.prototype.damage", blastDamage, "WRAPPER");
 }

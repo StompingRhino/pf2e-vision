@@ -1,6 +1,6 @@
 import { MODULE_ID, loc, levelChip } from "./constants.mjs";
 import { getConfig } from "./settings.mjs";
-import { actionMode, degreeOfSuccess, transition, selectObservers, isOffGuardLevel, recognizeAction } from "./logic.mjs";
+import { actionMode, degreeOfSuccess, transition, selectObservers, seekAreaTargets, coneOriginOk, recognizeAction } from "./logic.mjs";
 import * as store from "./store.mjs";
 import { ConfirmApp } from "./confirm-app.mjs";
 
@@ -9,6 +9,7 @@ export function init() {}
 
 export function ready() {
 	Hooks.on("createChatMessage", onCreate);
+	Hooks.on("createRegion", onRegion);
 	Hooks.on("renderChatMessageHTML", onRender);
 }
 
@@ -51,8 +52,58 @@ async function seekTargetIds(message, ctx) {
 	return ids;
 }
 
-async function onCreate(message) {
+const onCreate = (message) => (game.user === game.users.activeGM ? run(message) : undefined);
+
+/** Seek without explicit targets: the author picks the area after the roll (pf2e's own area links place the region). */
+async function postAreaCard(message, seeker, scene) {
+	const whisper = [...new Set([message.author?.id, ...ChatMessage.getWhisperRecipients("GM").map((u) => u.id)])].filter(Boolean);
+	return ChatMessage.create({
+		content: areaCard(false),
+		whisper,
+		speaker: { alias: "PF2e Vision" },
+		flags: { [MODULE_ID]: { seekArea: { seekMessageId: message.id, sceneId: scene.id, seekerId: seeker.id, done: false } } }
+	});
+}
+
+function areaCard(done) {
+	const e = foundry.utils.escapeHTML;
+	const link = (type, distance, icon) => `<a class="effect-area" data-effect-area data-type="${type}" data-distance="${distance}"><i class="fa-solid ${icon}"></i> ${e(loc(`seekArea.${type}`, { distance }))}</a>`;
+	const body = done
+		? `<p>${e(loc("seekArea.chosen"))}</p>`
+		: `<p class="pf2ev-sintro">${e(loc("seekArea.intro"))}</p><p>${link("burst", 15, "fa-circle-dot")} &nbsp; ${link("cone", 30, "fa-location-arrow")}</p>`;
+	return `<div class="pf2ev-sheet"><header class="pf2ev-card-head"><i class="fa-solid fa-eye" aria-hidden="true"></i><span>${e(loc("seekArea.title"))}</span></header><div class="pf2ev-note">${body}</div></div>`;
+}
+
+/** A region placed from the area card: the active GM computes the Seek once, then removes the region. */
+async function onRegion(region) {
 	if (game.user !== game.users.activeGM) return;
+	const card = game.messages.get(region.flags?.pf2e?.messageId);
+	const area = card?.flags?.[MODULE_ID]?.seekArea;
+	if (!area) return;
+	if (area.done || region.parent?.id !== area.sceneId) return region.delete();   // повторный клик по ещё не перерисованной карточке
+	const seekMessage = game.messages.get(area.seekMessageId);
+	const scene = region.parent;
+	const seeker = scene.tokens.get(area.seekerId);
+	const shape = region.shapes[0];
+	const g = scene.grid.size;
+	const rect = seeker && { x: seeker.x, y: seeker.y, width: seeker.width * g, height: seeker.height * g };
+	if (shape?.type === "cone" && rect && !coneOriginOk(shape, rect, g)) {
+		await region.delete();
+		return ChatMessage.create({
+			content: `<div class="pf2ev-sheet"><div class="pf2ev-note"><p>${foundry.utils.escapeHTML(loc("seekArea.coneOrigin"))}</p></div></div>`,
+			whisper: [...new Set([seekMessage?.author?.id, ...ChatMessage.getWhisperRecipients("GM").map((u) => u.id)])].filter(Boolean),
+			speaker: { alias: "PF2e Vision" }
+		});
+	}
+	await card.update({ content: areaCard(true), [`flags.${MODULE_ID}.seekArea.done`]: true });
+	try {
+		if (seekMessage) await run(seekMessage, region);
+	} finally {
+		await region.delete();
+	}
+}
+
+async function run(message, region = null) {
 	const rec = recognise(message);
 	if (!rec) return;
 	const { action, ctx } = rec;
@@ -82,14 +133,16 @@ async function onCreate(message) {
 	};
 	let note = "";
 	if (action === "seek") {
-		const ids = await seekTargetIds(message, ctx);
-		// explicit targets: only them; none: everyone hidden from the seeker
+		const ids = region ? new Set() : await seekTargetIds(message, ctx);
+		// explicit targets: only them; none: the author picks an area, then those inside it who are hidden from the seeker
 		let targets;
 		if (ids.size) {
 			targets = others.filter((p) => ids.has(p.id));
 			if (!targets.length) note = loc("suggest.noTargets");
+		} else if (!region) {
+			return postAreaCard(message, actorTok, scene);
 		} else {
-			targets = others.filter((p) => isOffGuardLevel(store.getLevel(p.id, me.id, scene)));
+			targets = seekAreaTargets(others, (p) => p.tok.testInsideRegion(region), (p) => store.getLevel(p.id, me.id, scene));
 		}
 		for (const t of targets) push(me, t, t.actor.skills?.stealth?.dc?.value);
 	} else {

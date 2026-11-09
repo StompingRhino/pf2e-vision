@@ -219,3 +219,17 @@ export function pickChanges(rows, edits) {
 			: [];
 	});
 }
+
+/** Spell cast (not a card preview, not a variant button) at the outermost toMessage call: actualCast is set by every pf2e casting path. */
+export const isCastCall = (options, depth) => !!options?.actualCast && options.create !== false && depth === 0;
+
+/** Spell that gets a per-target flat check: targeted, no attack roll, no area. */
+export const needsSpellFlat = (spell) => !!spell && !spell.isAttack && !spell.area && !!spell.system?.target?.value;
+
+/** Seek over an area: combatants (not the seeker) inside the region and hidden from the seeker. `inside(p)` / `levelOf(p)` come from the caller. */
+export const seekAreaTargets = (others, inside, levelOf) => others.filter((p) => inside(p) && isOffGuardLevel(levelOf(p)));
+
+/** A Seek cone must start at the seeker: its vertex lies in the token rectangle or the ring of cells around it (pixels). */
+export const coneOriginOk = (vertex, rect, grid) =>
+	vertex.x >= rect.x - grid && vertex.x <= rect.x + rect.width + grid
+	&& vertex.y >= rect.y - grid && vertex.y <= rect.y + rect.height + grid;

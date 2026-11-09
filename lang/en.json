@@ -75,6 +75,14 @@
       "autoTitle": "Visibility: automatic",
       "autoSummary": "{action} by {actor}: {count} change(s) applied"
     },
+    "seekArea": {
+      "title": "Seek: choose an area",
+      "intro": "No targets. Choose the area to search and place it on the map.",
+      "burst": "Burst {distance} ft",
+      "cone": "Cone {distance} ft",
+      "chosen": "Area chosen",
+      "coneOrigin": "The Seek cone must start at the seeker. Place it again."
+    },
     "notify": {
       "applyFailed": "Could not apply visibility changes"
     },

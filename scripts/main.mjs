@@ -26,5 +26,5 @@ Hooks.once("init", () => {
 
 Hooks.once("ready", () => {
 	runAll("ready");
-	game.modules.get(MODULE_ID).api = { store, visuals, openMatrix: matrix.openMatrix };
+	game.modules.get(MODULE_ID).api = { store, visuals, openMatrix: matrix.openMatrix, rollSpellFlat: rolls.rollSpellFlat };
 });
