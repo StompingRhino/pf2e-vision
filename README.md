@@ -1,6 +1,8 @@
 # PF2e Vision
 
-**English.** A Foundry VTT v14 module for the PF2e system (8.1+). In an active combat the GM sets, per pair of tokens, how well each observer sees each target (Observed / Concealed / Hidden / Undetected / Unnoticed) in a "brush" matrix window. Players see the result on the canvas; attack rolls get flat checks and off-guard; Hide / Sneak / Seek rolls can propose or apply visibility changes. Requires lib-wrapper only. UI languages: Russian and English. The rest of this README is in Russian.
+**English.** Beta. A Foundry VTT v14 module for the PF2e system (8.1+). In an active combat the GM sets, per pair of tokens, how well each observer sees each target (Observed / Concealed / Hidden / Undetected / Unnoticed) in a "brush" matrix window. Players see the result on the canvas; attack rolls get flat checks and off-guard; Hide / Sneak / Seek rolls can propose or apply visibility changes. Requires lib-wrapper only. UI languages: Russian and English. The rest of this README is in Russian.
+
+> **Тестовая версия 0.9.0. Перед установкой сделайте копию мира.**
 
 ## Что делает
 
@@ -8,14 +10,19 @@
 
 ## Требования
 
-- Foundry VTT v14 (проверено на 14.364).
-- Система PF2e 8.1.x (минимум 8.1.0).
+- Foundry VTT v14 (проверено на 14.370).
+- Система PF2e 8.1.0 и новее (проверено на 8.7.0).
 - Модуль lib-wrapper.
 - PF2e Workbench и PF2e Toolbelt **не нужны**; модуль с ними совместим. Если в Toolbelt включён target-helper, его цели добавляются к целям Поиска.
+- С [PF2e AuTOMATO](https://github.com/StompingRhino/pf2e-automato) работает в паре: дым, слепота и невидимость из его автоматизации ставят метки в матрицу Vision вместо состояний на актёре (настройка AuTOMATO «Метки видимости в PF2e Vision»).
 
 ## Установка
 
-Скопировать в `Data/modules/pf2e-vision` (id модуля — `pf2e-vision`) только `module.json`, `scripts/`, `templates/`, `styles/`, `lang/`, `README.md` (служебные `PLAN.md`, `SPIKE.md`, `brief.md`, `prototypes/`, `tests/` в пакет не входят), перезапустить Foundry, включить модуль (вместе с lib-wrapper) в мире.
+На экране настройки Foundry откройте вкладку «Модули», нажмите «Установить модуль» и вставьте в поле «Ссылка манифеста»:
+
+`https://github.com/StompingRhino/pf2e-vision/releases/latest/download/module.json`
+
+Затем включите в мире PF2e Vision и lib-wrapper.
 
 ## Как пользоваться
 
@@ -37,7 +44,7 @@
 
 ### Уровни и последствия
 
-Отношение направленное: «A для наблюдателя B» ≠ «B для A». Ячейка (наблюдатель O, цель T) означает, как O видит T.
+Отношение направленное: как A видит B — не то же, что как B видит A. Ячейка (наблюдатель O, цель T) означает, как O видит T.
 
 | Уровень | Чистая проверка у O при атаке на T (СЛ по умолчанию) | O застигнут врасплох для атак T? |
 |---|---|---|
@@ -54,7 +61,7 @@
 
 Провал чистой проверки по умолчанию делает атаку промахом; можно ограничиться сообщением в чат или отменить бросок. Результат чистой проверки идёт в чат публично или шёпотом ГМу (настройка).
 
-Заклинания с атакой проверяются как атаки. Заклинания без броска атаки, сотворённые по целям (не по области), получают чистую проверку по каждой выбранной цели в момент сотворения. При провале в чат пишется, что заклинание не действует на эту цель; спасбросок и урон не блокируются — их не бросают/не применяют вручную.
+Заклинания с атакой проверяются как атаки. Заклинания без броска атаки, сотворённые по целям (не по области), получают чистую проверку по каждой выбранной цели в момент сотворения. При провале в чат пишется, что заклинание не действует на эту цель. Спасбросок и урон модуль не блокирует: по этой цели их просто не бросают и не применяют вручную.
 
 ### Что видят игроки
 
@@ -138,7 +145,7 @@
 | Подсказки последствий | вкл. | Показывать чистую проверку и «застигнут врасплох» при наведении на ячейку |
 | Подсветка на канвасе | вкл. | Подсвечивать токены при наведении на имена и ячейки |
 
-## Известные ограничения v1
+## Известные ограничения
 
 - Elemental Blast: «застигнут врасплох» в урон не передаётся.
 - Заклинания без атаки: провал чистой проверки только сообщается, спасбросок и урон по этой цели не блокируются. Проверка срабатывает на любую карточку заклинания, отправленную в чат при выбранных целях в бою (pf2e не отличает сотворение от показа карточки).
@@ -147,3 +154,13 @@
 - Настоящие условия PF2e Спрятан / Необнаружен на актёре работают отдельно от матрицы и с ней не синхронизируются.
 - Данные хранятся флагами на токенах активного боя (`flags.pf2e-vision.visibility`); вне боя модуль не работает.
 - Трекер боя по умолчанию показывает игрокам всех участников; скрытие необнаруженных включается настройкой «Скрывать необнаруженных в трекере боя».
+
+## Нашли ошибку
+
+Пишите в [Issues](https://github.com/StompingRhino/pf2e-vision/issues). Укажите версии Foundry, pf2e и модуля и приложите вывод консоли (F12).
+
+Для разработчиков — `docs/dev/` (план, заметки по исследованию API, исходный бриф).
+
+## Лицензия
+
+Код модуля — MIT (`LICENSE`). Игровые механики и названия — Paizo Inc., используются по [Paizo Community Use Policy](https://paizo.com/licenses/communityuse) и ORC License (ремастер), полный текст уведомлений — `NOTICE`. Модуль не публикуется, не одобряется и не поддерживается Paizo.

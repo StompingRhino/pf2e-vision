@@ -178,10 +178,13 @@
 .pf2ev-sheet .pf2ev-smeta { font-size: 12px; color: #5b5048; font-variant-numeric: tabular-nums; }
 .pf2ev-sheet .pf2ev-strans { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 .pf2ev-sheet .pf2ev-strans > i { color: #5b5048; font-size: 11px; }
+/* кнопка шага в чате — как у pf2e-automato (DESIGN.md automato «Кнопки модуля в чате»): во всю строку, от 36px, бордо */
 .pf2ev-sheet .pf2ev-card-actions { display: grid; grid-template-columns: 1fr; gap: 6px; padding: 0 10px 10px; }
 .pf2ev-sheet .pf2ev-sopen {
-	width: 100%; height: auto; min-height: 30px; margin: 0; padding: 5px 10px; font: 500 13px/1.15 Roboto, system-ui, sans-serif;
+	display: flex; align-items: center; justify-content: center; gap: 6px;
+	width: 100%; height: auto; min-height: 36px; margin: 0; padding: 6px 10px; font: 600 13px/1.2 Roboto, system-ui, sans-serif; white-space: normal;
 	color: #fff; background: #5e0000; border: 1px solid #5e0000; border-radius: 3px; box-shadow: none; cursor: pointer; transition: background-color .15s, border-color .15s;
 }
 .pf2ev-sheet .pf2ev-sopen:hover { background: #7a1414; border-color: #7a1414; }
-.pf2ev-sheet .pf2ev-sopen > i { margin-right: 6px; }
+.pf2ev-sheet .pf2ev-sopen > i { font-size: 13px; }
+.pf2ev-sheet .pf2ev-sopen:focus-visible { outline: 2px solid #171f69; outline-offset: 2px; }

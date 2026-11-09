@@ -1,17 +1,24 @@
 {
   "id": "pf2e-vision",
   "title": "PF2e Vision",
-  "description": "Directional visibility (observed, concealed, hidden, undetected, unnoticed) between tokens for PF2e combat: GM matrix, player-side token visuals, flat checks, off-guard, Hide/Sneak/Seek.",
-  "version": "1.0.0",
-  "compatibility": {
-    "minimum": "14",
-    "verified": "14.364"
-  },
+  "description": "<p><b>Тестовая версия.</b> Направленная видимость между токенами в бою PF2e (видимость, плохая видимость, спрятанность, необнаруженность, незамеченность): матрица ведущего, отображение у игроков, чистые проверки, застигнут врасплох, Спрятаться / Красться / Поиск.</p><p><b>Beta.</b> Directional visibility (observed, concealed, hidden, undetected, unnoticed) between tokens for PF2e combat: GM matrix, player-side token visuals, flat checks, off-guard, Hide/Sneak/Seek.</p>",
+  "version": "0.9.0",
   "authors": [
     {
-      "name": "StompingRhino"
+      "name": "StompingRhino",
+      "url": "https://github.com/StompingRhino"
     }
   ],
+  "url": "https://github.com/StompingRhino/pf2e-vision",
+  "manifest": "https://github.com/StompingRhino/pf2e-vision/releases/latest/download/module.json",
+  "download": "https://github.com/StompingRhino/pf2e-vision/releases/download/v0.9.0/pf2e-vision.zip",
+  "bugs": "https://github.com/StompingRhino/pf2e-vision/issues",
+  "readme": "https://github.com/StompingRhino/pf2e-vision#readme",
+  "license": "LICENSE",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14.370"
+  },
   "esmodules": [
     "scripts/main.mjs"
   ],
@@ -36,7 +43,8 @@
         "id": "pf2e",
         "type": "system",
         "compatibility": {
-          "minimum": "8.1.0"
+          "minimum": "8.1.0",
+          "verified": "8.7.0"
         }
       }
     ],

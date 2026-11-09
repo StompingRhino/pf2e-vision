@@ -1,8 +1,0 @@
-.pf2e-vision-panel .window-content { padding: 6px 8px; font-family: var(--font-primary); }
-.pf2e-vision-panel .pv-row { display: grid; grid-template-columns: 1fr 96px 22px; gap: 6px; align-items: center; padding: 3px 0; border-bottom: 1px solid var(--color-border-light-tertiary, #ccc); }
-.pf2e-vision-panel .pv-row:hover { background: color-mix(in srgb, var(--color-pf-primary, #5e0000) 12%, transparent); }
-.pf2e-vision-panel .pv-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: bold; }
-.pf2e-vision-panel .pv-state { grid-column: 1 / 4; font-size: var(--font-size-11, 11px); color: var(--color-pf-primary, #5e0000); }
-.pf2e-vision-panel img.pv-icon { width: 20px; height: 20px; border: 0; }
-.pf2e-vision-panel input[type=range] { width: 100%; margin: 0; accent-color: var(--color-pf-primary, #5e0000); }
-.pf2e-vision-panel .pv-hint { color: var(--color-text-dark-secondary, #555); font-style: italic; }

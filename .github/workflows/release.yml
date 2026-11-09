@@ -1,0 +1,36 @@
+# Релиз по тегу vX.Y.Z: юнит-тесты, затем zip только с тем, что нужно Foundry.
+# Манифест в module.json смотрит на releases/latest — поэтому релиз не prerelease (latest пропускает prerelease).
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Tag matches module.json
+        run: |
+          node -e '
+            const m = require("./module.json"), tag = process.env.GITHUB_REF_NAME;
+            if (`v${m.version}` !== tag) throw new Error(`version ${m.version} != tag ${tag}`);
+            if (!m.download.includes(`/download/${tag}/`)) throw new Error(`download не на ${tag}: ${m.download}`);
+          '
+      - name: Unit tests
+        run: node --test tests/*.test.mjs
+      - name: Zip
+        run: |
+          D=dist/pf2e-vision
+          mkdir -p $D
+          cp -r scripts templates styles lang module.json LICENSE NOTICE README.md $D/
+          (cd $D && zip -qr ../../pf2e-vision.zip .)
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            pf2e-vision.zip
+            module.json
+          make_latest: true
